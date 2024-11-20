@@ -1,2 +1,2 @@
 # domino-rs
-A rust crate for domino storage and server api
+A workspace for the rust crates needed for domino org

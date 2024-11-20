@@ -1,0 +1,2 @@
+[default.databases.sea_orm]
+url = "sqlite://./domino.sqlite?mode=rwc"

@@ -1,0 +1,21 @@
+[package]
+name = "domino-rs"
+version = "0.1.0"
+authors = ["Nunzio Onorati <nunzioonorati@gmail.com>"]
+edition = "2021"
+publish = false
+
+[workspace]
+members = [
+  ".",
+  "domino_lib",
+  "api",
+  "service",
+  "entity",
+  "migration",
+  "dto"
+]
+resolver = "2"
+
+[dependencies]
+api = { path = "api" }
