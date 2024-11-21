@@ -19,8 +19,8 @@ pub async fn select_puzzle(
     difficulty: Option<u64>
 ) -> R<dto::PuzzleDto> {
     let db = conn.into_inner();
-    let n = n.unwrap();
-    let difficulty = difficulty.unwrap();
+    let n = n.unwrap_or(2);
+    let difficulty = difficulty.unwrap_or(1);
     let dto = Query::select_puzzle_by_n_difficulty(db, n, difficulty).await.expect("Unable to find a puzzle with the parameters specified");
 
     Ok(Json(dto))
@@ -32,7 +32,7 @@ pub async fn insert_puzzles(
     retrials: Option<u64>
 ) -> R<()> {
     let db = conn.into_inner();
-    let retrials = retrials.unwrap();
+    let retrials = retrials.unwrap_or(10);
     let _ = Mutation::insert_puzzles(db, retrials as usize);
 
     Ok(Json(()))

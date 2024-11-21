@@ -6,6 +6,7 @@ use ::entity::{
   tile_placement, tile_placement::Entity as TilePlacement,
   tile::Entity as Tile
 };
+use rand::Rng;
 use sea_orm::*;
 
 pub struct Query;
@@ -16,8 +17,17 @@ impl Query {
     n: u64,
     difficulty: u64
   ) -> Result<PuzzleDto, DbErr> {
-    let puzzle = Puzzle::find().filter(puzzle::Column::Difficulty.eq(difficulty)).one(db).await?.expect("No puzzles match the difficulty given");
-    let collection = Collection::find_by_id(puzzle.collection_id).filter(collection::Column::N.eq(n)).one(db).await?.expect("No puzzles match the n given");
+    let puzzles = Puzzle::find().filter(puzzle::Column::Difficulty.eq(difficulty)).all(db).await?;
+    let mut puzzle = puzzles[rand::thread_rng().gen_range(0..puzzles.len())].clone();
+    let mut collection = Collection::find_by_id(puzzle.collection_id).filter(collection::Column::N.eq(n)).one(db).await?;
+    
+    while collection.is_none() {
+      puzzle = puzzles[rand::thread_rng().gen_range(0..puzzles.len())].clone();
+      collection = Collection::find_by_id(puzzle.collection_id).filter(collection::Column::N.eq(n)).one(db).await?;
+    }
+
+    let collection = collection.unwrap();
+    let id = puzzle.id;
     let mut puzzle = vec![None; collection.len.try_into().unwrap()];
     let placements = TilePlacement::find().filter(tile_placement::Column::CollectionId.eq(collection.id)).all(db).await?;
     for placement in placements {
@@ -27,7 +37,7 @@ impl Query {
         }
         puzzle[placement.position as usize] = Some((tile.left_halve, tile.right_halve));
     }
-    Ok(PuzzleDto { puzzle })
+    Ok(PuzzleDto { id, puzzle })
   }
 
   pub async fn select_sequences(db: &DatabaseConnection) -> Result<Vec<Vec<(i32, i32)>>, DbErr> {
