@@ -1,2 +1,4 @@
-[default.databases.sea_orm]
-url = "sqlite://./domino.sqlite?mode=rwc"
+[default]
+databases = { sea_orm = {url = "sqlite://./domino.sqlite?mode=rwc"} }
+address = "0.0.0.0"
+port = 8000
