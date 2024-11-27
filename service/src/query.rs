@@ -28,16 +28,16 @@ impl Query {
 
     let collection = collection.unwrap();
     let id = puzzle.id;
-    let mut puzzle = vec![None; collection.len.try_into().unwrap()];
+    let mut tiles = vec![None; collection.len.try_into().unwrap()];
     let placements = TilePlacement::find().filter(tile_placement::Column::CollectionId.eq(collection.id)).all(db).await?;
     for placement in placements {
         let mut tile = Tile::find_by_id(placement.tile_id).one(db).await?.unwrap();
         if placement.rotation {
             (tile.left_halve, tile.right_halve) = (tile.right_halve, tile.left_halve);
         }
-        puzzle[placement.position as usize] = Some((tile.left_halve, tile.right_halve));
+        tiles[placement.position as usize] = Some((tile.left_halve, tile.right_halve));
     }
-    Ok(PuzzleDto { id, puzzle })
+    Ok(PuzzleDto { id, tiles })
   }
 
   pub async fn select_sequences(db: &DatabaseConnection) -> Result<Vec<Vec<(i32, i32)>>, DbErr> {

@@ -5,5 +5,5 @@ use rocket_okapi::okapi::schemars::{self, JsonSchema};
 #[serde(crate = "rocket::serde")]
 pub struct PuzzleDto {
     pub id: String,
-    pub puzzle: Vec<Option<(i32, i32)>> 
+    pub tiles: Vec<Option<(i32, i32)>> 
 }
