@@ -10,6 +10,8 @@ path = "src/lib.rs"
 rand = "0.8.5"
 anyhow = "1.0.92"
 itertools = "0.13.0"
+highs-sys = { version = "1.5.0", features = ["discover"] }
+highs = { version = "1.5.0" }
 good_lp = { version = "1.9.0", default-features = false, features = ["highs"]}
 
 [dev-dependencies]
