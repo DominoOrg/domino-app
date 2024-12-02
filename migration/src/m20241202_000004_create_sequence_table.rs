@@ -1,6 +1,6 @@
 use sea_orm_migration::prelude::*;
 
-use crate::m20241115_000003_create_collection_table::Collection;
+use crate::m20241202_000003_create_collection_table::Collection;
 
 pub struct Migration;
 

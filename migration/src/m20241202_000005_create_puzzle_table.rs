@@ -1,6 +1,6 @@
 use sea_orm_migration::prelude::*;
 
-use crate::m20241115_000003_create_collection_table::Collection;
+use crate::{m20241202_000003_create_collection_table::Collection, m20241202_000004_create_sequence_table::Sequence};
 
 pub struct Migration;
 
@@ -28,11 +28,28 @@ impl MigrationTrait for Migration {
                         .string()
                         .not_null()
                     )
+                    .col(
+                        ColumnDef::new(Puzzle::Difficulty)
+                        .integer()
+                        .not_null()
+                        .default(0)
+                    )
+                    .col(
+                        ColumnDef::new(Puzzle::SolvedBy)
+                        .string()
+                        .not_null()    
+                    )
                     .foreign_key(
                         ForeignKey::create()
                         .name("fk-collection_id")
                         .from(Puzzle::Table, Puzzle::CollectionId)
                         .to(Collection::Table, Collection::Id)
+                    )
+                    .foreign_key(
+                        ForeignKey::create()
+                        .name("fk-solved_by")
+                        .from(Puzzle::Table, Puzzle::SolvedBy)
+                        .to(Sequence::Table, Sequence::Id)
                     )
                     .to_owned(),
             )
@@ -51,4 +68,6 @@ pub enum Puzzle {
     Table,
     Id,
     CollectionId,
+    Difficulty,
+    SolvedBy
 }

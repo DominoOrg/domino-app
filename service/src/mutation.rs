@@ -64,8 +64,8 @@ impl Mutation {
         let sequences = Query::select_sequences(db).await?;
         let total_puzzles = sequences.len()*retrials;
     
-        for (i, sequence) in sequences.iter().enumerate() {
-            let sequence = sequence.into_iter().map(|tile| (tile.0.to_string(), tile.1.to_string())).collect::<Vec<(String, String)>>();
+        for (i, sequence_model) in sequences.iter().enumerate() {
+            let sequence = sequence_model.tiles.clone().into_iter().map(|tile| (tile.0.to_string(), tile.1.to_string())).collect::<Vec<(String, String)>>();
     
             for j in 0..100 {
                 let puzzle: Vec<Option<(String, String)>> = generate_puzzle(&sequence);
@@ -85,7 +85,8 @@ impl Mutation {
                     let puzzle_obj = puzzle::ActiveModel {
                         id: ActiveValue::Set(puzzle_id.clone()),
                         collection_id: ActiveValue::Set(collection_id.clone()),
-                        difficulty: ActiveValue::Set(puzzle_complexity as i32)
+                        difficulty: ActiveValue::Set(puzzle_complexity as i32),
+                        solved_by: ActiveValue::Set(sequence_model.id.clone())
                     };
                     if let Err(_error) = Puzzle::insert(puzzle_obj).exec(db).await {
                         continue;

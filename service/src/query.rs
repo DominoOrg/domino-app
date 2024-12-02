@@ -8,6 +8,11 @@ use ::entity::{
 };
 use rand::Rng;
 use sea_orm::*;
+pub struct SequenceModel {
+  pub id: String,
+  pub tiles: Vec<(i32, i32)>
+}
+
 
 pub struct Query;
 
@@ -40,7 +45,7 @@ impl Query {
     Ok(PuzzleDto { id, tiles })
   }
 
-  pub async fn select_sequences(db: &DatabaseConnection) -> Result<Vec<Vec<(i32, i32)>>, DbErr> {
+  pub async fn select_sequences(db: &DatabaseConnection) -> Result<Vec<SequenceModel>, DbErr> {
     let sequences_rows = Sequence::find().all(db).await?;
     let mut sequences = Vec::new();
     for sequence_row in sequences_rows {
@@ -54,7 +59,10 @@ impl Query {
             }
             sequence[placement.position as usize] = (tile.left_halve, tile.right_halve);
         }
-        sequences.push(sequence);
+        sequences.push(SequenceModel {
+          id: sequence_row.id,
+          tiles: sequence
+        });
     }
     Ok(sequences)
 }
