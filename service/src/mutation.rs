@@ -67,7 +67,7 @@ impl Mutation {
         for (i, sequence_model) in sequences.iter().enumerate() {
             let sequence = sequence_model.tiles.clone().into_iter().map(|tile| (tile.0.to_string(), tile.1.to_string())).collect::<Vec<(String, String)>>();
     
-            for j in 0..100 {
+            for j in 0..10 {
                 let puzzle: Vec<Option<(String, String)>> = generate_puzzle(&sequence);
                 let puzzle_remapped: Vec<Option<(usize, usize)>> = puzzle.iter().map(|tile| if let Some((halve1, halve2)) = tile {
                     Some((usize::from_str_radix(&halve1.clone(), 10).unwrap(), usize::from_str_radix(&halve2.clone(), 10).unwrap()))
