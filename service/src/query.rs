@@ -13,7 +13,6 @@ pub struct SequenceModel {
   pub tiles: Vec<(i32, i32)>
 }
 
-
 pub struct Query;
 
 impl Query {

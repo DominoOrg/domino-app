@@ -33,6 +33,7 @@ pub async fn insert_puzzles(
 ) -> R<()> {
     let db = conn.into_inner();
     let retrials = retrials.unwrap_or(10);
+    let _ = Mutation::insert_sequences(db, retrials as usize);
     let _ = Mutation::insert_puzzles(db, retrials as usize);
 
     Ok(Json(()))
