@@ -8,10 +8,10 @@ COPY . .
 RUN apt-get update
 RUN apt-get install -y g++ cmake openssl clang
 
-# BUILD DOMINO-RS
+# BUILD THE API
 RUN cargo build --release
 
-# MOVE THE BINARY OUT OF THE SOURCE FOLDER
+# COPY THE EXECUTABLE TO THE usr/local/bin FOLDER
 RUN cp target/release/domino-rs /usr/local/bin/ 
 RUN cp domino.sqlite /usr/local/bin/
 RUN cp Rocket.toml /usr/local/bin/
@@ -19,6 +19,6 @@ RUN cp Rocket.toml /usr/local/bin/
 # REMOVE SOURCE
 RUN rm -rf /usr/src/domino-rs
 
-# ENSURE THE IMAGE CONTINUES RUNNING
+# LAUNCH THE API
 WORKDIR /usr/local/bin
 CMD ["domino-rs"]
