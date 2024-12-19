@@ -30,7 +30,7 @@ impl Mutation {
         insert_tiles(db).await?;
     
         // Insert collections and decompose sequences
-        for n in [6,9,12] {
+        for n in [3,6,9] {
             for i in 0..retrials {
                 let sequence = generate_solution(n, true);
                 if let Ok(collection_id) = insert_collection(db, &sequence).await {

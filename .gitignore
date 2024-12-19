@@ -25,3 +25,4 @@ Cargo.lock
 /target
 /domino.sqlite
 .env
+./.vscode
