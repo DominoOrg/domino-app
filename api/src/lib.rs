@@ -22,21 +22,6 @@ async fn run_migrations(rocket: Rocket<Build>) -> fairing::Result {
     Ok(rocket)
 }
 
-#[tokio::main]
-async fn start() -> Result<(), rocket::Error> {
-    rocket::build()
-        .attach(Db::init())
-        .attach(AdHoc::try_on_ignite("Migrations", run_migrations))
-        .mount(
-            "/",
-            routes![select_puzzle, insert_puzzles],
-        )
-        .attach(cors())
-        .launch()
-        .await
-        .map(|_| ())
-}
-
 fn cors() -> Cors {
     let allowed_origins = AllowedOrigins::all();
     rocket_cors::CorsOptions {
@@ -52,6 +37,24 @@ fn cors() -> Cors {
     .to_cors()
     .unwrap()
 }
+
+#[tokio::main]
+async fn start() -> Result<(), rocket::Error> {
+    let figment = rocket::Config::figment()
+        .merge(("databases.sea_orm.url", "sqlite://./db/domino.sqlite?mode=rwc"));
+    rocket::custom(figment)
+        .attach(Db::init())
+        .attach(AdHoc::try_on_ignite("Migrations", run_migrations))
+        .mount(
+            "/",
+            routes![select_puzzle, insert_puzzles],
+        )
+        .attach(cors())
+        .launch()
+        .await
+        .map(|_| ())
+}
+
 
 pub fn main() {
     let result = start();

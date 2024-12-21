@@ -1,24 +1,16 @@
-# BASE IMAGE FOR RUST
-FROM rust:1.82
-
+# BASE IMAGE FOR RUST BUILD OF THE SOURCES
+FROM rust:1.82-slim-bullseye AS build
 WORKDIR /usr/src/domino-rs
 COPY . .
+# INSTALL HIGHS DEPENDENCIES (COMPILING IT NOT FROM SOURCE BUT FROM highs-sys CRATE)
+# THEN BUILD FROM SOURCES
+RUN apt-get update \
+  && apt-get install -y g++ cmake libssl-dev pkg-config clang\
+  && cargo install --path .
 
-# INSTALL HIGHS DEPENDENCY (COMPILING IT NOT FROM SOURCE BUT FROM highs-sys CRATE)
-RUN apt-get update
-RUN apt-get install -y g++ cmake openssl clang
-
-# BUILD THE API
-RUN cargo build --release
-
-# COPY THE EXECUTABLE TO THE usr/local/bin FOLDER
-RUN cp target/release/domino-rs /usr/local/bin/ 
-RUN cp domino.sqlite /usr/local/bin/
-RUN cp Rocket.toml /usr/local/bin/
-
-# REMOVE SOURCE
-RUN rm -rf /usr/src/domino-rs
-
-# LAUNCH THE API
-WORKDIR /usr/local/bin
-CMD ["domino-rs"]
+# SMALLER IMAGE TO USE TO RUN THE BINARY
+FROM debian:bullseye-slim
+COPY --from=build /usr/local/cargo/bin/domino-rs /usr/local/bin/domino-rs
+COPY ./domino.sqlite /usr/local/bin/domino.sqlite
+COPY ./Rocket.toml /usr/local/bin/Rocket.toml
+CMD ["/usr/local/bin/domino-rs"]
