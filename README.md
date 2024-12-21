@@ -1,2 +1,2 @@
 # domino-rs
-A workspace for the rust crates needed for domino org
+A monorepo for the domino web app
