@@ -5,6 +5,7 @@ import { formSchema } from "@/components/custom/homeForm";
 import DraggableTiles from "@/components/custom/draggableTiles";
 import Header from "@/components/custom/header";
 import { DragDropProvider } from "@/draganddrop/DragDropContext";
+
 export type TileModel = [number, number];
 
 export interface PuzzleJson {
@@ -17,8 +18,13 @@ type Puzzle = {
   draggableTiles: TileModel[];
 };
 
-const Game: React.FC<{ n: string; difficulty: string }> = () => {
-  const { n, difficulty } = Route.useSearch();
+const Game = () => {
+
+  const params: {
+    n: string;
+    difficulty: string;
+  } = Route.useSearch();
+  const { n, difficulty } = params;
   let combinationSize: number = Math.pow(Number(n) + 1, 2);
   const tileset: [number, number][] = new Array(combinationSize)
     .fill(0)

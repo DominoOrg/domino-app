@@ -9,7 +9,7 @@ interface UseDroppableProps {
 export function useDroppable({ acceptTypes, onDrop }: UseDroppableProps) {
   const { draggedItem } = useDragDrop();
   const [isOver, setIsOver] = useState(false);
-  const elementRef = useRef<HTMLElement | null>(null);
+  const elementRef = useRef<HTMLImageElement | null>(null);
 
   useEffect(() => {
     const element = elementRef.current;

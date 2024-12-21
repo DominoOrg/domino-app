@@ -9,7 +9,7 @@ interface UseDraggableProps {
 
 export function useDraggable({ id, type, data }: UseDraggableProps) {
   const { setDraggedItem } = useDragDrop();
-  const elementRef = useRef<HTMLElement | null>(null);
+  const elementRef = useRef<HTMLImageElement | null>(null);
 
   useEffect(() => {
     const element = elementRef.current;

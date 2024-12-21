@@ -4,6 +4,7 @@ extern crate rocket;
 use api::{insert_puzzles, select_puzzle};
 use rocket::fairing::{self, AdHoc};
 use rocket::{Build, Rocket};
+use rocket::fs::FileServer;
 
 use migration::MigratorTrait;
 use sea_orm_rocket::Database;
@@ -45,8 +46,9 @@ async fn start() -> Result<(), rocket::Error> {
     rocket::custom(figment)
         .attach(Db::init())
         .attach(AdHoc::try_on_ignite("Migrations", run_migrations))
+        .mount("/", FileServer::from("static"))
         .mount(
-            "/",
+            "/api",
             routes![select_puzzle, insert_puzzles],
         )
         .attach(cors())
