@@ -20,4 +20,5 @@ COPY --from=backend-builder /usr/local/cargo/bin/domino-rs ./domino-rs
 COPY ./backend/db/domino.sqlite /usr/local/bin/db/
 COPY --from=frontend-builder /usr/src/frontend/dist/. ./dist/
 RUN mv ./dist ./static
+EXPOSE 8000
 CMD ["/usr/local/bin/domino-rs"]
