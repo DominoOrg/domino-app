@@ -15,7 +15,9 @@ RUN npm install && npm run build
 
 # SMALLER IMAGE TO USE TO RUN THE BINARY
 FROM debian:bullseye-slim
-COPY --from=backend-builder /usr/local/cargo/bin/domino-rs /usr/local/bin/domino-rs
-COPY ./backend/db/domino.sqlite /usr/local/bin/domino.sqlite
-COPY --from=frontend-builder /usr/src/frontend/dist /usr/local/bin/static
+WORKDIR /usr/local/bin
+COPY --from=backend-builder /usr/local/cargo/bin/domino-rs ./domino-rs
+COPY ./backend/db/domino.sqlite /usr/local/bin/db/
+COPY --from=frontend-builder /usr/src/frontend/dist/. ./dist/
+RUN mv ./dist ./static
 CMD ["/usr/local/bin/domino-rs"]

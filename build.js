@@ -1,0 +1,13 @@
+const fs = require('fs');
+const { execSync } = require('child_process');
+
+try {
+  fs.rmSync("./backend/target", { recursive: true, force: true });
+  fs.rmSync("./backend/static", { recursive: true, force: true });
+  fs.rmSync("./frontend/node_modules", { recursive: true, force: true });
+  fs.rmSync("./frontend/dist", { recursive: true, force: true });
+  execSync('docker build . -t domino-rs', { stdio: 'ignore', stdout: 'pipe' });
+} catch (error) {
+  console.error('Error building the docker image:', error);
+  process.exit(1);
+}
