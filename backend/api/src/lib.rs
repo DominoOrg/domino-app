@@ -10,7 +10,7 @@ use migration::MigratorTrait;
 use sea_orm_rocket::Database;
 
 use rocket::http::Method;
-use rocket_cors::{AllowedHeaders, AllowedOrigins, Cors};
+use rocket_cors::{AllowedHeaders, AllowedMethods, AllowedOrigins, Cors};
 
 mod pool;
 use pool::Db;
@@ -24,17 +24,7 @@ async fn run_migrations(rocket: Rocket<Build>) -> fairing::Result {
 }
 
 fn cors() -> Cors {
-    let allowed_origins = AllowedOrigins::all();
-    rocket_cors::CorsOptions {
-        allowed_origins,
-        allowed_methods: vec![Method::Get, Method::Post, Method::Delete]
-            .into_iter()
-            .map(From::from)
-            .collect(),
-        allowed_headers: AllowedHeaders::all(),
-        allow_credentials: true,
-        ..Default::default()
-    }
+    rocket_cors::CorsOptions::default()
     .to_cors()
     .unwrap()
 }
