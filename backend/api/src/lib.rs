@@ -7,10 +7,8 @@ use rocket::{Build, Rocket};
 use rocket::fs::FileServer;
 
 use migration::MigratorTrait;
+use rocket_cors::Cors;
 use sea_orm_rocket::Database;
-
-use rocket::http::Method;
-use rocket_cors::{AllowedHeaders, AllowedMethods, AllowedOrigins, Cors};
 
 mod pool;
 use pool::Db;
