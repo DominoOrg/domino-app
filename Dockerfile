@@ -6,9 +6,8 @@ WORKDIR /usr/src/backend
 COPY ./backend .
 RUN rustup target add aarch64-unknown-linux-gnu
 RUN apt update \
-  && apt install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \
-  && CC=aarch64-linux-gnu-gcc cargo build --release --target aarch64-unknown-linux-gnu
-# Continue with the rest of your Dockerfile, adjusting paths if necessary
+  && apt-get install -y g++ cmake libssl-dev pkg-config clang\
+  && cargo install --path .# Continue with the rest of your Dockerfile, adjusting paths if necessary
 
 FROM node:23-bullseye-slim AS frontend-builder
 WORKDIR /usr/src/frontend
