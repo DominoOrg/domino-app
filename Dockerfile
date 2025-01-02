@@ -16,6 +16,7 @@ RUN npm install && npm run build
 # SMALLER IMAGE TO USE TO RUN THE BINARY
 FROM debian:bullseye-slim
 ENV ROCKET_PORT=8080
+ENV ROCKET_ADDRESS=0.0.0.0
 WORKDIR /usr/local/bin
 COPY --from=backend-builder /usr/local/cargo/bin/domino-rs ./domino-rs
 COPY ./backend/db/domino.sqlite /usr/local/bin/db/

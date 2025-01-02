@@ -1,6 +1,5 @@
 #[macro_use]
 extern crate rocket;
-
 use api::{insert_puzzles, select_puzzle};
 use rocket::fairing::{self, AdHoc};
 use rocket::{Build, Rocket};
