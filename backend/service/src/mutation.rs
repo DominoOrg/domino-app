@@ -5,7 +5,7 @@ use domino_lib::{
         generate_puzzle::generate_puzzle,
         generate_sequence::generate_solution
     },
-    lp_models::validate_puzzle_model::validate
+    lp_models::validate_puzzle_models::validate
 };
 use entity::tile;
 use sea_orm::{ActiveValue, DatabaseConnection, DbErr, EntityTrait};

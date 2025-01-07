@@ -1,4 +1,4 @@
-use super::model_execution_lib::execute;
+use crate::model_execution_lib::execute;
 use model::compute_model;
 use parse::parse_to_sequence;
 mod model;

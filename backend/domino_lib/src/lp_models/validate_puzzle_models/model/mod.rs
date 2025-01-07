@@ -1,11 +1,11 @@
 use helpers::sorting_label;
 use itertools::Itertools;
 
-use crate::lp_models::validate_puzzle_model::model::bounds::{
+use crate::lp_models::validate_puzzle_models::model::bounds::{
     each_position_filled_bound, each_tile_used_once_bound, next_adjacent_bound,
 };
-use crate::lp_models::validate_puzzle_model::model::variables::{variables, Variables};
-use crate::{lp_models::validate_puzzle_model::Puzzle, stringify_variables};
+use crate::lp_models::validate_puzzle_models::model::variables::{variables, Variables};
+use crate::{lp_models::validate_puzzle_models::Puzzle, stringify_variables};
 
 mod bounds;
 mod helpers;
@@ -62,5 +62,6 @@ pub fn compute_model(puzzle: &Puzzle, n: usize) -> String {
         model.push_str(format!(" {}\n", variable).as_str());
     }
     model.push_str("End");
+    println!("{}", model);
     return model;
 }

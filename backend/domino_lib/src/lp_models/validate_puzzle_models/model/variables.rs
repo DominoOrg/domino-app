@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::lp_models::validate_puzzle_model::Puzzle;
+use crate::domino_types::{tile::Tile, puzzle::Puzzle};
 
 // Struct representing a Variable with label, tile, and position.
 #[derive(Debug, Clone)]
@@ -51,7 +51,7 @@ pub fn create_tileset(puzzle: &Puzzle, n: usize) -> Vec<(usize, usize)> {
     let length: usize = (n + 1).pow(2);
     let mut tileset: Vec<(usize, usize)> = (0..length)
         .map(|i| (i / (n + 1), i % (n + 1)))
-        .filter(|var| puzzle.contains(&Some(*var)))
+        .filter(|var| puzzle.contains(Tile(var.0, var.1)).is_some())
         .collect::<Vec<(usize, usize)>>();
 
     if n % 2 == 1 {
@@ -73,7 +73,7 @@ fn generate_combinations(puzzle: &Puzzle, tileset: Vec<(usize, usize)>, n: usize
     let tileset_digits = ((tileset.len().saturating_sub(1)) as f32).log10().floor() as usize + 1;
     let sequence_digits = ((sequence_length.saturating_sub(1)) as f32).log10().floor() as usize + 1;
     let positions: Vec<usize> = (0..sequence_length)
-        .filter(|position| puzzle[*position].is_some())
+        .filter(|position| puzzle.at(*position).is_some())
         .collect::<Vec<usize>>();
     tileset
         .iter()

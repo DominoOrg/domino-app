@@ -5,7 +5,7 @@ use good_lp::{
     SolverModel, Variable, VariableDefinition,
 };
 
-use crate::lp_models::model_execution_lib::parser::{BoundType, ModelParser, ObjectiveType};
+use super::parser::{BoundType, ModelParser, ObjectiveType};
 
 pub struct Adapter {
     vars: ProblemVariables,

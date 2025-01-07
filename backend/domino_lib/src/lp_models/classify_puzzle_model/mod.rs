@@ -1,6 +1,6 @@
 mod model;
 
-use crate::lp_models::model_execution_lib::execute;
+use crate::model_execution_lib::execute;
 use model::compute_model;
 
 type Tile = (usize, usize);

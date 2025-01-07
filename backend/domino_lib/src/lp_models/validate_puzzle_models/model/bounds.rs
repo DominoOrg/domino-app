@@ -1,5 +1,5 @@
 use crate::{
-    lp_models::validate_puzzle_model::{model::variables::Variables, Puzzle},
+    lp_models::validate_puzzle_models::{model::variables::Variables, Puzzle},
     stringify_variables,
 };
 
@@ -53,7 +53,8 @@ pub fn next_adjacent_bound(
     let mut prob_bounds = Vec::new();
 
     for variable in vars.by_label.values() {
-        if puzzle[(variable.position + 1) % puzzle.len()].is_none() {
+        let index = (variable.position + 1) % puzzle.len();
+        if puzzle.at(index).is_none() {
             continue;
         }
 
