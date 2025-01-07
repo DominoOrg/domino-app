@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use crate::domino_types::puzzle::Puzzle;
 use crate::graph_models::generate_sequence::sequence::as_sequence;
 use crate::graph_models::graph_types::{
     aux_graph::AuxiliaryGraph, di_graph::DirectedGraph, graph::GraphTrait, pog_graph::PogGraph,
@@ -9,7 +10,7 @@ use coloring::lexicographic2_coloring;
 
 mod coloring;
 
-fn get_n(puzzle: &Vec<Option<(String, String)>>) -> usize {
+pub fn get_n(puzzle: &Puzzle) -> usize {
     let l = puzzle.len();
     let n_p = (-3.0 + (1.0 + 8.0 * (l as f64)).sqrt()) / 2.0;
     let n_d = (-2.0 + (8.0 * (l as f64)).sqrt()) / 2.0;
@@ -21,23 +22,23 @@ fn get_n(puzzle: &Vec<Option<(String, String)>>) -> usize {
     n
 }
 
-pub fn solve(puzzle: &Vec<Option<(String, String)>>) -> Option<Vec<(String, String)>> {
+pub fn solve(puzzle: &Puzzle) -> Option<Vec<(String, String)>> {
     // Create a pog graph representing the puzzle
     let n = get_n(puzzle);
     let reg = RegularGraph::new(n);
     let mut pog = PogGraph::from(&reg);
-
+    let puzzle: Vec<Option<(usize, usize)>> = puzzle.clone().into();
     for tile in puzzle {
         if let Some(tile) = tile {
             pog.insert_or_update(
-                tile.0.clone(),
-                Some((tile.1.clone(), Orientation::Zero)),
-                (tile.1.clone(), Orientation::Positive),
+                tile.0.to_string(),
+                Some((tile.1.to_string(), Orientation::Zero)),
+                (tile.1.to_string(), Orientation::Positive),
             );
             pog.insert_or_update(
-                tile.1.clone(),
-                Some((tile.0.clone(), Orientation::Zero)),
-                (tile.0.clone(), Orientation::Negative),
+                tile.1.to_string(),
+                Some((tile.0.to_string(), Orientation::Zero)),
+                (tile.0.to_string(), Orientation::Negative),
             );
         }
     }
@@ -75,6 +76,7 @@ pub fn solve(puzzle: &Vec<Option<(String, String)>>) -> Option<Vec<(String, Stri
 #[cfg(test)]
 mod test {
 
+    use crate::domino_types::puzzle::Puzzle;
     use crate::graph_models::generate_sequence::generate_solution;
     use crate::graph_models::solve_puzzle::solve;
 
@@ -85,9 +87,10 @@ mod test {
             let mut puzzle = sequence
                 .clone()
                 .into_iter()
-                .map(|tile| Some(tile))
-                .collect::<Vec<Option<(String, String)>>>();
+                .map(|tile| Some((i32::from_str_radix(&tile.0, 10).unwrap() as usize, i32::from_str_radix(&tile.1, 10).unwrap() as usize)))
+                .collect::<Vec<Option<(usize, usize)>>>();
             puzzle[0] = None;
+            let puzzle = Puzzle::from(puzzle);
             let solved = solve(&puzzle).unwrap();
             assert_eq!(solved, sequence);
         }

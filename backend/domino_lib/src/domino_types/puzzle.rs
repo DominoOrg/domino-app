@@ -1,29 +1,39 @@
-use std::collections::{HashMap, HashSet};
+use std::{collections::HashSet, fmt::Display};
 
 use super::tile::Tile;
 
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct Puzzle {
   pub tiles: HashSet<Tile>,
-  pub positions: HashMap<usize, Tile>
+  pub vec: Vec<Option<Tile>>
 }
 
 impl Puzzle {
 
-    pub fn insert(&mut self, position: usize, tile: Tile) {
-        if self.tiles.insert(tile) {
-          self.positions.insert(position, tile);
+    pub fn push(&mut self, tile: Option<Tile>) {
+      if let Some(tile) = tile {
+        self.tiles.insert(tile);
+      }
+      self.vec.push(tile);
+
+    }
+  
+    pub fn insert(&mut self, position: usize, tile: Option<Tile>) {
+        if let Some(tile) = tile {
+          self.tiles.insert(tile);
         }
+        self.vec.insert(position, tile);
     }
 
-    pub fn remove(&mut self, position: usize) {
-        if let Some(tile) = self.positions.remove(&position) {
-          self.tiles.remove(&tile);
+    pub fn remove(&mut self, position: usize) -> Option<Tile> {
+        if let Some(Some(tile)) = self.vec.get(position) {
+          self.tiles.remove(tile);
         }
+        self.vec.remove(position)
     }
 
     pub fn at(&self, position: usize) -> Option<Tile> {
-        self.positions.get(&position).cloned()
+        self.vec.get(position).cloned().expect("Index out of bounds")
     }
 
     pub fn contains(&self, tile: Tile) -> Option<usize> {
@@ -31,22 +41,42 @@ impl Puzzle {
     }
 
     pub fn len(&self) -> usize {
-        self.positions.len()
+        self.vec.len()
     }
 }
 
 impl From<Vec<Option<(usize, usize)>>> for Puzzle {
     fn from(value: Vec<Option<(usize, usize)>>) -> Self {
         let mut puzzle = Puzzle::default();
-        for (position, tile) in value.iter().enumerate() {
-            if let Some(tile) = tile {
-                puzzle.insert(position, Tile(tile.0, tile.1));
-            }
+        for tile in value.iter() {
+          puzzle.push((*tile).map(|tile| tile.into()));
         }
         puzzle
     }
 }
 
+impl Into<Vec<Option<(usize, usize)>>> for Puzzle {
+    fn into(self) -> Vec<Option<(usize, usize)>> {
+        self.vec.into_iter().map(|tile| if let Some(tile) = tile {
+          Some((tile.0, tile.1))  
+        } else {
+          None
+        }).collect()
+    }
+}
+
+impl Display for Puzzle {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+      for tile in self.vec.iter() {
+        if let Some(tile) = tile {
+          write!(f, "({},{})", tile.0, tile.1)?;
+        } else {
+          write!(f, "(?,?)")?;
+        }
+      }
+      std::fmt::Result::Ok(())
+    }
+}
 pub struct FitPuzzleChecker;
 
 impl FitPuzzleChecker {

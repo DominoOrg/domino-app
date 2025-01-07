@@ -1,10 +1,12 @@
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
+#[cfg(feature = "lpmodels")]
 pub enum ObjectiveType {
     #[default]
     Minimize,
     Maximize,
 }
 
+#[cfg(feature = "lpmodels")]
 #[derive(Debug)]
 pub enum BoundType {
     Equality,
@@ -12,6 +14,7 @@ pub enum BoundType {
     GreaterThanOrEqual,
 }
 
+#[cfg(feature = "lpmodels")]
 #[derive(Debug)]
 pub struct Bound {
     _name: String,
@@ -20,12 +23,14 @@ pub struct Bound {
     pub bound_type: BoundType,
 }
 
+#[cfg(feature = "lpmodels")]
 #[derive(Debug, Default, Clone)]
 pub struct Objective {
     pub objective_type: ObjectiveType,
     pub terms: (Vec<(f64, String)>, f64), // Coefficient and variable pairs
 }
 
+#[cfg(feature = "lpmodels")]
 #[derive(Debug)]
 pub struct ModelParser {
     pub objective: Objective,
@@ -33,6 +38,7 @@ pub struct ModelParser {
     pub binary_variables: Vec<String>,
 }
 
+#[cfg(feature = "lpmodels")]
 impl ModelParser {
     pub fn new() -> Self {
         ModelParser {

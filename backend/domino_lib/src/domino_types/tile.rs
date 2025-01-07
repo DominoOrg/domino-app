@@ -15,3 +15,21 @@ impl PartialEq for Tile {
 impl Eq for Tile {
     
 }
+
+impl TryFrom<(String, String)> for Tile {
+    type Error = String;
+
+    fn try_from(value: (String, String)) -> Result<Self, Self::Error> {
+        let (a, b) = value;
+        let a = a.parse().map_err(|_| "Invalid tile".to_string())?;
+        let b = b.parse().map_err(|_| "Invalid tile".to_string())?;
+
+        Ok(Tile(a, b))
+    }
+}
+
+impl From<(usize, usize)> for Tile {
+    fn from(value: (usize, usize)) -> Self {
+        Tile(value.0, value.1)
+    }
+}

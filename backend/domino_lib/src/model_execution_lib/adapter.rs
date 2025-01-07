@@ -1,12 +1,16 @@
+#[cfg(feature = "lpmodels")]
 use std::collections::HashMap;
 
+#[cfg(feature = "lpmodels")]
 use good_lp::{
     default_solver, variable, Constraint, Expression, ProblemVariables, ResolutionError, Solution,
     SolverModel, Variable, VariableDefinition,
 };
 
+#[cfg(feature = "lpmodels")]
 use super::parser::{BoundType, ModelParser, ObjectiveType};
 
+#[cfg(feature = "lpmodels")]
 pub struct Adapter {
     vars: ProblemVariables,
     pub variable_map: HashMap<String, (VariableDefinition, Variable)>,
@@ -16,6 +20,7 @@ pub struct Adapter {
     bounds: Vec<Constraint>,
 }
 
+#[cfg(feature = "lpmodels")]
 impl Adapter {
     pub fn new() -> Adapter {
         Adapter {

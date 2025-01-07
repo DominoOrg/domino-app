@@ -77,8 +77,8 @@ impl SolutionBuilder {
       n
     };
     let variables = variable_parser.parse(variables_map);
-    for (position, tile) in variables.into_iter().filter(|variable| variable.value).map(|variable| (variable.key.position, variable.key.tile)) {
-      solution.insert(position, tile.clone());
+    for (_position, tile) in variables.into_iter().filter(|variable| variable.value).map(|variable| (variable.key.position, variable.key.tile)) {
+      solution.push(Some(tile.clone()));
     }
     solution
   }
