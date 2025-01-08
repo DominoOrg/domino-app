@@ -8,7 +8,6 @@ publish = false
 [workspace]
 members = [
   ".",
-  "domino_lib",
   "api",
   "service",
   "entity",
@@ -19,3 +18,4 @@ resolver = "2"
 
 [dependencies]
 api = { path = "api" }
+domino-lib = "0.1.0"
