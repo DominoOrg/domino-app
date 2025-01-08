@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 entity = { path = "../entity" }
 dto = {path = "../dto" }
-domino_lib = {path = "../domino_lib"}
+domino-lib = "0.1.1"
 rand = "0.8.5"
 
 [dependencies.sea-orm]

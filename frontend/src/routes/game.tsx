@@ -94,7 +94,8 @@ const fetchData = async (
 ) => {
   try {
     const response = await fetch(
-      "http://dominoonline.it/select_puzzle?n=" +
+      import.meta.env.VITE_API_BASE_URL + 
+      "/select_puzzle?n=" +
         n +
         "&difficulty=" +
         difficulty,

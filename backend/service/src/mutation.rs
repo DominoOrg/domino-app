@@ -1,12 +1,10 @@
 use std::hash::Hasher;
-use domino_lib::{
-    graph_models::{
+use domino_lib::graph_models::{
         classify_puzzle::classify_puzzle,
         generate_puzzle::generate_puzzle,
-        generate_sequence::generate_solution
-    },
-    lp_models::validate_puzzle_models::validate
-};
+        generate_sequence::generate_solution,
+        validate_puzzle::validate
+    };
 use entity::tile;
 use sea_orm::{ActiveValue, DatabaseConnection, DbErr, EntityTrait};
 use ::entity::{
@@ -61,46 +59,7 @@ impl Mutation {
     
     pub async fn insert_puzzles(db: &DatabaseConnection, retrials: usize) -> Result<(), DbErr> {
         println!("Inserting puzzles...");
-        let sequences = Query::select_sequences(db).await?;
-        let total_puzzles = sequences.len()*retrials;
-    
-        for (i, sequence_model) in sequences.iter().enumerate() {
-            let sequence = sequence_model.tiles.clone().into_iter().map(|tile| (tile.0.to_string(), tile.1.to_string())).collect::<Vec<(String, String)>>();
-    
-            for j in 0..10 {
-                let puzzle: Vec<Option<(String, String)>> = generate_puzzle(&sequence);
-                let puzzle_remapped: Vec<Option<(usize, usize)>> = puzzle.iter().map(|tile| if let Some((halve1, halve2)) = tile {
-                    Some((usize::from_str_radix(&halve1.clone(), 10).unwrap(), usize::from_str_radix(&halve2.clone(), 10).unwrap()))
-                } else {
-                    None
-                }
-                ).collect();
-                if validate(&puzzle_remapped, get_n(&puzzle_remapped)).is_err() {
-                    continue;
-                }
-                if let Ok(collection_id) = insert_collection(db, &puzzle).await {
-                    // Insert the sequence entry
-                    let puzzle_id = collection_id.clone().replace("collection_", "puzzle_");
-                    let puzzle_complexity = classify_puzzle(&puzzle);
-                    let puzzle_obj = puzzle::ActiveModel {
-                        id: ActiveValue::Set(puzzle_id.clone()),
-                        collection_id: ActiveValue::Set(collection_id.clone()),
-                        difficulty: ActiveValue::Set(puzzle_complexity as i32),
-                        solved_by: ActiveValue::Set(sequence_model.id.clone())
-                    };
-                    if let Err(_error) = Puzzle::insert(puzzle_obj).exec(db).await {
-                        continue;
-                    }
-    
-                    // Decompose and insert the sequence referencing the collection
-                    insert_tile_placements(db, &puzzle, collection_id).await?;
-                    print!("\rProgress: {}/{}", (i+1)*retrials+j, total_puzzles);
-                } else {
-                    continue;
-                }
-            }
-        }
-        println!("\r Inserted all the sequences");
+        
         Ok(())
     }
 }

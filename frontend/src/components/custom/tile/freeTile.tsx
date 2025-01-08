@@ -7,7 +7,6 @@ const FreeTile: React.FC<{
   n: number
 }> = ({ tile, index, imgClasses, n }) => {
   let heighClass = "";
-  console.log(n)
   switch(n) {
     case 3:
       heighClass = "h-24";
