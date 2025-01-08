@@ -1,5 +1,5 @@
 [package]
-name = "domino-rs"
+name = "domino-backend"
 version = "0.1.0"
 authors = ["Nunzio Onorati <nunzioonorati@gmail.com>"]
 edition = "2021"

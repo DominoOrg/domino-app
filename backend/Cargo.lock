@@ -852,6 +852,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "domino-backend"
+version = "0.1.0"
+dependencies = [
+ "api",
+ "domino-lib",
+]
+
+[[package]]
 name = "domino-lib"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -860,14 +868,6 @@ dependencies = [
  "anyhow",
  "itertools 0.13.0",
  "rand",
-]
-
-[[package]]
-name = "domino-rs"
-version = "0.1.0"
-dependencies = [
- "api",
- "domino-lib",
 ]
 
 [[package]]
