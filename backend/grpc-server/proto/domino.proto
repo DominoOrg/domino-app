@@ -1,0 +1,33 @@
+syntax = "proto3";
+package domino;
+
+service Domino {
+    rpc insertPuzzles(InsertPuzzlesRequest) returns (InsertPuzzlesResponse);
+    rpc selectPuzzle(SelectPuzzleRequest) returns (SelectPuzzleResponse);
+}
+
+message InsertPuzzlesRequest {
+    int32 numberOfPuzzles = 1;
+}
+
+message InsertPuzzlesResponse {
+    int32 inserted = 1;
+}
+
+message SelectPuzzleRequest {
+    int32 n = 1;
+    int32 c = 2;
+}
+
+message Tile {
+    int32 left = 1;
+    int32 right = 2;
+}
+
+message Puzzle {
+    repeated Tile tiles = 1;
+}
+
+message SelectPuzzleResponse {
+    Puzzle puzzle = 1;
+}
