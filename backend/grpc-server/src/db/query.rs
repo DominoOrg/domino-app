@@ -1,8 +1,8 @@
-use crate::proto::{Puzzle, Tile};
+use domino_lib::types::{Puzzle, Tile};
 
 pub fn query_puzzle(n: usize, c: usize) -> Result<Puzzle, sqlite::Error> {
     let mut puzzle = Puzzle::default();
-    let connection = sqlite::open("::memory::").unwrap();
+    let connection = sqlite::open(":memory:").unwrap();
     let mut stmt = "
         SELECT P.id
         FROM puzzle P, collection C
@@ -39,28 +39,34 @@ pub fn query_puzzle(n: usize, c: usize) -> Result<Puzzle, sqlite::Error> {
         true
     }).expect("Error fetching inserted tiles");
 
-    let mut tiles: Vec<Tile> = vec![];
+    let mut tiles: Vec<Option<Tile>> = vec![];
     for tile_info in tiles_info {
         stmt = "SELECT left, right FROM tile WHERE id = ".to_owned() + &tile_info.0;
         connection.iterate(stmt, |result| {
-            let mut tile = Tile::default();
+            let mut left = 0;
+            let mut right = 0;
+
             for (column, value) in result {
                 println!("{:?}: {:?}", column, value);
+
                 if column.to_string() == "left".to_string() {
-                    tile.left = value.unwrap().parse::<i32>().unwrap();
+                    left = value.unwrap().parse::<i32>().unwrap();
                 } else if column.to_string() == "right".to_string() {
-                    tile.right = value.unwrap().parse::<i32>().unwrap();
+                    right = value.unwrap().parse::<i32>().unwrap();
                 }
             }
-            tiles.push(tile);
+
+            let tile = Tile(left, right);
+
+            tiles.push(Some(tile));
             true
         }).expect("Error fetching the tiles");
     }
-    puzzle.tiles = tiles;
+    puzzle.extend_from_slice(tiles.as_slice());
     Ok(puzzle)
 }
 
 pub fn mutation(query: String) -> Result<(), sqlite::Error> {
-    let connection = sqlite::open("::memory::").unwrap();
+    let connection = sqlite::open(":memory:").unwrap();
     connection.execute(query)
 }

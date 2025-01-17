@@ -2,7 +2,8 @@ use proto::domino_server::{Domino, DominoServer};
 use tonic::{transport::Server, Response};
 use utils::cors;
 use db::{insert_puzzle, select_puzzle};
-use domino_lib::{generate_puzzle, validate_puzzle, solve_puzzle, classify_puzzle};
+use domino_lib::functionalities::{generate::generate_puzzle, validate::validate_puzzle, solve::solve_puzzle, classify::classify_puzzle};
+
 mod utils;
 mod db;
 pub mod proto {
@@ -24,8 +25,13 @@ impl Domino for DominoService {
         let n = message.n;
         let c = message.c;
         let puzzle = select_puzzle(n, c);
-        let response = proto::SelectPuzzleResponse { puzzle };
-        Ok(Response::new(response))
+        if let Ok(puzzle) = puzzle {
+            let proto_puzzle = proto::Puzzle { tiles: puzzle.into_iter().map(|tile| proto::Tile { left: tile.unwrap().0, right: tile.unwrap().1 }).collect() };
+            let response = proto::SelectPuzzleResponse { puzzle: Some(proto_puzzle) };
+            Ok(Response::new(response))                
+        } else {
+            Err(tonic::Status::not_found("Puzzle not found"))
+        }
     }
     
     async fn insert_puzzles(&self, request: tonic::Request<proto::InsertPuzzlesRequest>)
@@ -40,16 +46,16 @@ impl Domino for DominoService {
             n += 3;
             for _ in 0..chunk_size {
                 // generate puzzle
-                let puzzle = generate_puzzle(n);
+                let puzzle = generate_puzzle(n, true);
                 // validate puzzle
-                if !validate_puzzle(&puzzle) {
+                if validate_puzzle(&puzzle).is_err() {
                     continue;
                 }
                 // solve puzzle
-                let solution = solve_puzzle(&puzzle);
+                let solution = solve_puzzle(&puzzle).unwrap();
                 // classify puzzle
                 let c = classify_puzzle(&puzzle);
-                let result: bool = insert_puzzle(puzzle, solution, n, c);
+                let result: bool = insert_puzzle(puzzle, solution, n, c).unwrap();
                 if result {
                     inserted += 1;
                 }   
@@ -63,6 +69,7 @@ impl Domino for DominoService {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let addr = "[::1]:50051".parse()?;
+    println!("Listening on {}", addr);
 
     let service = tonic_reflection::server::Builder::configure()
         .register_encoded_file_descriptor_set(proto::FILE_DESCRIPTOR_SET)

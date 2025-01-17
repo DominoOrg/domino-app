@@ -1,0 +1,69 @@
+@startuml domino-app
+!pragma teoz true
+actor Programmer
+
+actor User
+
+participant Client
+
+box Server
+participant gRPC
+box "domino-lib"
+    participant Generate
+    participant Validate
+    participant Classify
+    participant Solve
+end box
+database SqliteDB
+end box
+
+group Insertion
+    activate gRPC
+    Programmer -> gRPC: Insert Puzzles
+        activate SqliteDB
+            loop A certain number of times
+            gRPC -> Generate
+            Generate -> Validate
+            alt Puzzle is valid
+            Validate -> Classify
+            Classify -> Solve
+            Solve -> Classify
+            Classify -> Validate
+            Validate -> Generate
+            Generate -> gRPC
+            gRPC -> SqliteDB
+            else Puzzle is not valid
+            Validate -> Generate 
+            Generate -> gRPC
+            end
+
+            end
+            SqliteDB -> gRPC
+                alt all went good
+                    gRPC -> Programmer: 200
+                else nope
+                    gRPC -> Programmer: 500
+                end
+        deactivate SqliteDB
+    deactivate gRPC
+end
+
+group Selection
+    activate Client
+        User -> Client: Select Puzzle
+        activate gRPC
+            Client -> gRPC: Select Puzzle
+            activate SqliteDB
+                gRPC -> SqliteDB 
+                SqliteDB -> gRPC
+                alt all went good
+                    gRPC -> Client: 200 - Puzzle
+                else nope
+                    gRPC  -> Client: 500 - There is no puzzle with the features requested
+                end
+            deactivate SqliteDB
+        deactivate gRPC
+        Client -> User
+    deactivate Client
+end
+@enduml
