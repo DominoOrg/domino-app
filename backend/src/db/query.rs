@@ -1,4 +1,7 @@
+use std::fmt::Error;
+
 use domino_lib::types::{Puzzle, Tile};
+use rand::prelude::*;
 
 fn open_connection() -> Result<sqlite::Connection, sqlite::Error> {
     sqlite::open("./domino.db")
@@ -15,19 +18,27 @@ pub fn query_puzzle(n: usize, c: usize) -> Result<Puzzle, sqlite::Error> {
         AND P.collection_id = C.id
     ";
     println!("stmt: {}", stmt);
-    let mut puzzle_id: Option<String> = None;
+    let mut valid_puzzle_ids = vec![];
     connection.iterate(stmt, |result| {
         for (column, value) in result {
             if column.to_string() == "id".to_string() {
-                puzzle_id = value.map(|s| s.to_string());
-                return true;
+                if let Some(value) = value {
+                    let puzzle_id = value.to_string();                    
+                    valid_puzzle_ids.push(puzzle_id);
+                }
             }
         }
-        false
+        true
     }).expect("Error fetching the puzzle id");
 
+    if valid_puzzle_ids.len() == 0 {
+        return Ok(vec![]);
+    }
+    let mut rand_seed = rand::thread_rng();
+    let rand_index = rand_seed.gen_range(0..valid_puzzle_ids.len());
+    let puzzle_id = valid_puzzle_ids[rand_index].clone();
     let mut tiles_info: Vec<(String, String)> = vec![];
-    stmt = "SELECT tile_id, position FROM inserted_tile WHERE collection_id = \"".to_owned() + &puzzle_id.unwrap() +"\"";
+    stmt = "SELECT tile_id, position FROM inserted_tile WHERE collection_id = \"".to_owned() + &puzzle_id +"\"";
     println!("stmt: {}", stmt);
     connection.iterate(stmt, |result| {
         let mut tile_info: (String, String) = ("".to_string(), "".to_string());

@@ -91,6 +91,7 @@ name = "backend"
 version = "0.1.0"
 dependencies = [
  "domino-lib",
+ "rand",
  "rocket",
  "rocket_cors",
  "sqlite",
