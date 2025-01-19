@@ -5,6 +5,8 @@ import { formSchema } from "@/components/custom/homeForm";
 import DraggableTiles from "@/components/custom/draggableTiles";
 import Header from "@/components/custom/header";
 import { DragDropProvider } from "@/draganddrop/DragDropContext";
+import { SelectPuzzleRequest, SelectPuzzleResponse } from "./domino_pb.ts";
+import { DominoClient } from "./domino_grpc_web_pb.ts";
 
 export type TileModel = [number, number];
 
@@ -93,13 +95,13 @@ const fetchData = async (
   setError: React.Dispatch<React.SetStateAction<string | null>>
 ) => {
   try {
-    const response = await fetch(
-      import.meta.env.VITE_API_BASE_URL + 
-      "/select_puzzle?n=" +
-        n +
-        "&difficulty=" +
-        difficulty,
-    );
+    const client = new DominoClient("http://localhost:8080");
+    const request = new SelectPuzzleRequest();
+    request.setN(Number(n));
+    request.setC(difficulty);
+    client.selectPuzzle(request, {}, (err, response) => {
+      console.log(response)
+    });
     if (!response.ok) {
       throw new Error("Network response was:" + response.status);
     }

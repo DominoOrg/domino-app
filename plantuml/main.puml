@@ -7,7 +7,7 @@ actor User
 participant Client
 
 box Server
-participant gRPC
+participant Api
 box "domino-lib"
     participant Generate
     participant Validate
@@ -18,11 +18,11 @@ database SqliteDB
 end box
 
 group Insertion
-    activate gRPC
-    Programmer -> gRPC: Insert Puzzles
+    activate Api
+    Programmer -> Api: Insert Puzzles
         activate SqliteDB
             loop A certain number of times
-            gRPC -> Generate
+            Api -> Generate
             Generate -> Validate
             alt Puzzle is valid
             Validate -> Classify
@@ -30,39 +30,39 @@ group Insertion
             Solve -> Classify
             Classify -> Validate
             Validate -> Generate
-            Generate -> gRPC
-            gRPC -> SqliteDB
+            Generate -> Api
+            Api -> SqliteDB
             else Puzzle is not valid
             Validate -> Generate 
-            Generate -> gRPC
+            Generate -> Api
             end
 
             end
-            SqliteDB -> gRPC
+            SqliteDB -> Api
                 alt all went good
-                    gRPC -> Programmer: 200
+                    Api -> Programmer: 200
                 else nope
-                    gRPC -> Programmer: 500
+                    Api -> Programmer: 500
                 end
         deactivate SqliteDB
-    deactivate gRPC
+    deactivate Api
 end
 
 group Selection
     activate Client
         User -> Client: Select Puzzle
-        activate gRPC
-            Client -> gRPC: Select Puzzle
+        activate Api
+            Client -> Api: Select Puzzle
             activate SqliteDB
-                gRPC -> SqliteDB 
-                SqliteDB -> gRPC
+                Api -> SqliteDB 
+                SqliteDB -> Api
                 alt all went good
-                    gRPC -> Client: 200 - Puzzle
+                    Api -> Client: 200 - Puzzle
                 else nope
-                    gRPC  -> Client: 500 - There is no puzzle with the features requested
+                    Api  -> Client: 500 - There is no puzzle with the features requested
                 end
             deactivate SqliteDB
-        deactivate gRPC
+        deactivate Api
         Client -> User
     deactivate Client
 end
