@@ -5,8 +5,6 @@ import { formSchema } from "@/components/custom/homeForm";
 import DraggableTiles from "@/components/custom/draggableTiles";
 import Header from "@/components/custom/header";
 import { DragDropProvider } from "@/draganddrop/DragDropContext";
-import { SelectPuzzleRequest, SelectPuzzleResponse } from "./domino_pb.ts";
-import { DominoClient } from "./domino_grpc_web_pb.ts";
 
 export type TileModel = [number, number];
 
@@ -89,19 +87,21 @@ export const Route = createFileRoute("/game")({
 const fetchData = async (
   puzzle: Puzzle,
   n: string,
-  difficulty: string,
+  c: string,
   setPuzzle: React.Dispatch<React.SetStateAction<Puzzle>>,
   setLoading: React.Dispatch<React.SetStateAction<boolean>>,
   setError: React.Dispatch<React.SetStateAction<string | null>>
 ) => {
   try {
-    const client = new DominoClient("http://localhost:8080");
-    const request = new SelectPuzzleRequest();
-    request.setN(Number(n));
-    request.setC(difficulty);
-    client.selectPuzzle(request, {}, (err, response) => {
-      console.log(response)
-    });
+    const baseApiUrl = import.meta.env.MODE =="development"? "http://localhost:8000/api": "https://domino.myddns.me/api";
+    console.log(baseApiUrl);
+    const apiUrl = baseApiUrl + 
+    "/select_puzzle?n=" +
+      n +
+      "&c=" +
+      c;
+    console.log(apiUrl)
+    const response = await fetch(apiUrl);
     if (!response.ok) {
       throw new Error("Network response was:" + response.status);
     }

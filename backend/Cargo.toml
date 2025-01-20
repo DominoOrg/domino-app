@@ -7,5 +7,5 @@ edition = "2021"
 rocket = {version = "0.5.1", features = ["json"]}
 rocket_cors = "0.6.0"
 sqlite = "*"
-domino-lib = "0.2.2"
+domino-lib = "0.3.2"
 rand = "0.8.5"
