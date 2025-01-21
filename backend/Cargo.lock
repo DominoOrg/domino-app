@@ -88,12 +88,13 @@ checksum = "ace50bade8e6234aa140d9a2f552bbee1db4d353f69b8217bc503490fc1a9f26"
 
 [[package]]
 name = "backend"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "domino-lib",
  "rand",
  "rocket",
  "rocket_cors",
+ "serde",
  "sqlite",
 ]
 
@@ -223,9 +224,9 @@ dependencies = [
 
 [[package]]
 name = "domino-lib"
-version = "0.3.2"
+version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e0a33c6637ac635174b0f70515ea0dca9a491922f9890189d39525a37110a934"
+checksum = "83a0f7d1e517ec3f29840839e0f04ca0576121523933649c9495d28d46b08270"
 dependencies = [
  "anyhow",
  "rand",

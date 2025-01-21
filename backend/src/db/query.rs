@@ -36,6 +36,9 @@ pub fn query_puzzle(n: usize, c: usize) -> Result<Puzzle, sqlite::Error> {
     }).expect("Error fetching the puzzle id");
 
     let mut rand_seed = rand::thread_rng();
+    if valid_puzzle_ids.len() == 0 {
+        return Ok(vec![]);
+    }
     let rand_index = rand_seed.gen_range(0..valid_puzzle_ids.len());
     let puzzle_id = valid_puzzle_ids[rand_index].clone();
     let puzzle_len = valid_puzzle_lengths[rand_index];

@@ -93,19 +93,52 @@ const fetchData = async (
   setError: React.Dispatch<React.SetStateAction<string | null>>
 ) => {
   try {
-    const baseApiUrl = import.meta.env.MODE =="development"? "http://localhost:8000/api": "https://domino.myddns.me/api";
-    console.log(baseApiUrl);
-    const apiUrl = baseApiUrl + 
-    "/select_puzzle?n=" +
-      n +
-      "&c=" +
-      c;
-    console.log(apiUrl)
-    const response = await fetch(apiUrl);
-    if (!response.ok) {
-      throw new Error("Network response was:" + response.status);
-    }
-    const result: PuzzleJson = await response.json();
+    // const baseApiUrl = import.meta.env.MODE =="development"? "http://localhost:8000/api": "https://domino.myddns.me/api";
+    // console.log(baseApiUrl);
+    // const apiUrl = baseApiUrl + 
+    // "/select_puzzle?n=" +
+    //   n +
+    //   "&c=" +
+    //   c;
+    // console.log(apiUrl)
+    // const response = await fetch(apiUrl);
+    // if (!response.ok) {
+    //   throw new Error("Network response was:" + response.status);
+    // }
+    // const result: PuzzleJson = await response.json();
+    const result: PuzzleJson = {
+      id: undefined,
+      tiles: [
+        [0,0],
+        [0,1],
+        [1,1],
+        [1,2],
+        [2,2],
+        [2,3],
+        [3,3],
+        [3,4],
+        [4,4],
+        [4,5],
+        [5,5],
+        [5,6],
+        [6,6],
+        [6,0],
+        [0,2],
+        [2,5],
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ]
+    };
     const remaining = puzzle.draggableTiles.filter((tile) => {
       for (const includedTile of result.tiles!.filter(
         (tile) => tile != null,
