@@ -1,0 +1,34 @@
+@startchen db-schema
+entity Puzzle {
+    id <<key>>
+    collection_id
+    c
+    solved_by
+}
+entity Solution {
+    id <<key>>
+    collection_id
+}
+entity Collection {
+    id <<key>>
+    n
+    len
+}
+entity Tile {
+    id <<key>>
+    left
+    right
+}
+relationship InsertedTile {
+    collection_id <<key>>
+    tile_id <<key>>
+    position
+}
+
+Puzzle -1- Collection
+Puzzle -1- Solution
+Solution -1- Collection
+Collection -(1,N)- InsertedTile
+InsertedTile -(N,1)- Tile
+
+@endchen
