@@ -2,7 +2,6 @@ import clsx from "clsx";
 import { GridTransform } from "./tile";
 import { useDroppable } from "@/draganddrop/Droppable";
 import { DragItem } from "@/draganddrop/DragDropContext";
-import { MouseEventHandler } from "react";
 
 type InBoardProps = {
   tile: [number, number] | null;
