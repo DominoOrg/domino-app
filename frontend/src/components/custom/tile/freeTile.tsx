@@ -25,7 +25,7 @@ const FreeTile: React.FC<{
   const ref = useDraggable({
     id,
     type: "freeTile",
-    data: tile
+    data: tile,
   });
 
   return (

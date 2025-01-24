@@ -2,6 +2,7 @@ import clsx from "clsx";
 import { GridTransform } from "./tile";
 import { useDroppable } from "@/draganddrop/Droppable";
 import { DragItem } from "@/draganddrop/DragDropContext";
+import { MouseEventHandler } from "react";
 
 type InBoardProps = {
   tile: [number, number] | null;
@@ -34,6 +35,15 @@ const InBoardTile: React.FC<InBoardProps> = (props) => {
     }
   }
 
+  const rotateTile = (e: any) => {
+    e.preventDefault();
+    let className = e.target.className;
+    let indexStart = className.indexOf("rotate-");
+    let actualRotation = className.substring(indexStart + 7, className.indexOf(" ", indexStart));
+    let newRotation = (parseInt(actualRotation) + 180) % 360;
+    e.target.className = (e.target as HTMLImageElement).className.replace("rotate-" + actualRotation, "rotate-" + newRotation);
+  }
+
   const { elementRef } = useDroppable({
     acceptTypes: ["freeTile"],
     onDrop: handleDrop
@@ -62,6 +72,7 @@ const InBoardTile: React.FC<InBoardProps> = (props) => {
             key={index}
             src="missing_tile.png"
             className={imgClasses}
+            onClick={rotateTile}
           />
       )}
     </>
