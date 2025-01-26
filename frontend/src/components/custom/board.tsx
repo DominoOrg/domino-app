@@ -1,6 +1,10 @@
 import clsx from "clsx";
-import { PuzzleJson } from "../../routes/game";
 import { computeSpiral } from "../../utils/spiral";
+
+interface PuzzleJson {
+  id: string,
+  tiles: ([number, number] | null)[];
+}
 
 interface BoardProps {
   // loading: boolean,

@@ -1,20 +1,21 @@
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { rootRoute } from "./routes/__root";
 
-//theme provider
-// import { ThemeProvider } from "@/components/shared/ThemeProvider";
-
-// Import the generated route tree
-import { routeTree } from "./routeTree.gen";
-
-//global styles
 import "./index.css";
+import { HomeRoute } from "./routes";
+import { GameRoute } from "./routes/game";
 
-// Create a new router instance
+export const queryClient = new QueryClient();
+const routeTree = rootRoute.addChildren({
+  HomeRoute,
+  GameRoute,
+})
+
 export const router = createRouter({ routeTree });
 
-// Register the router instance for type safety
 declare module "@tanstack/react-router" {
   interface Register {
     router: typeof router;
@@ -27,7 +28,9 @@ if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <StrictMode>
-      <RouterProvider router={router} />
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
     </StrictMode>,
   );
 }

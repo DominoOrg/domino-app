@@ -1,15 +1,18 @@
-import { TileModel } from "@/routes/game";
+import { computeTileset, filterTiles } from "@/utils/tileset";
 import Tile from "./tile/tile";
+import { Puzzle } from "@/api/mod";
 
 interface RemainingTilesProps {
-  remainingTiles: TileModel[],
-  n: number
+  puzzle: Puzzle,
+  n: string
 }
 
 const DraggableTiles: React.FC<RemainingTilesProps> = ({
-  remainingTiles,
+  puzzle: { tiles },
   n
 }) => {
+  let remainingTiles = filterTiles(computeTileset(n), tiles);
+  
   return (
     <div className="flex justify-center items-center w-full h-36 overflow-hidden">
       <div className={
@@ -23,7 +26,7 @@ const DraggableTiles: React.FC<RemainingTilesProps> = ({
             tile={tile}
             index={i}
             gridTransform={undefined}
-            n={n}
+            n={Number(n)}
             precTile={undefined}
             followingTile={undefined}
           />
