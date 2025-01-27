@@ -17,6 +17,7 @@ export default function Tutorial() {
   }
   const closeModal = () => {
     dispatch({ type: 'CLOSE_MODAL' });
+    localStorage.setItem("tutorialDone", "true");
   }
   return (<Dialog open={state.open}>
       <DialogContent className="sm:max-w-[425px]">

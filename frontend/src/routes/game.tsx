@@ -14,7 +14,8 @@ const Game = () => {
     difficulty: string
   } = GameRoute.useSearch();
   const { data, error, isPending } = usePuzzle(n, difficulty);
-  const isFirstTime = true // MOCKING THE FIRST TIME
+  const isFirstTime = !localStorage.getItem("tutorialDone") || localStorage.getItem("tutorialDone") === "false";
+  console.log(isFirstTime)
   if (isPending) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
