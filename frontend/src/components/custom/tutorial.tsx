@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { useReducer } from "react";
 
@@ -15,8 +15,10 @@ export default function Tutorial() {
   const updateProgress = () => {
     dispatch({ type: 'UPDATE_PROGRESS', payload: state.progress + 1 });
   }
+  const closeModal = () => {
+    dispatch({ type: 'CLOSE_MODAL' });
+  }
   return (<Dialog open={state.open}>
-      <DialogTrigger asChild></DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{state.title}</DialogTitle>
@@ -28,6 +30,7 @@ export default function Tutorial() {
             {state.progress > 0 && state.gif}
         </div>
         <DialogFooter>
+          {state.progress < 2 && <Button variant="outline" onClick={closeModal}>Close</Button>}
           <Button type="submit" onClick={updateProgress}>{state.cta}</Button>
         </DialogFooter>
       </DialogContent>
@@ -95,6 +98,8 @@ const reducer = (state: any, action: any) => {
           cta = "";
       }
       return { progress: action.payload, open, title, description, gif, cta };
+    case 'CLOSE_MODAL':
+      return { open: false };
     default:
       return state;
   }
