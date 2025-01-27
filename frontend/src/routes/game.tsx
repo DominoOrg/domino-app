@@ -6,6 +6,7 @@ import Header from "@/components/custom/header";
 import { DragDropProvider } from "@/draganddrop/DragDropContext";
 import { usePuzzle } from "@/api/mod";
 import { rootRoute } from "./__root";
+import Tutorial from "@/components/custom/tutorial";
 
 const Game = () => {
   const { n, difficulty }: {
@@ -13,13 +14,14 @@ const Game = () => {
     difficulty: string
   } = GameRoute.useSearch();
   const { data, error, isPending } = usePuzzle(n, difficulty);
-  
+  const isFirstTime = true // MOCKING THE FIRST TIME
   if (isPending) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
   return (
     <div className="w-screen h-screen flex flex-col justify-around items-center overflow-hidden">
       <Header />
+      {isFirstTime && <Tutorial />}
       <DragDropProvider>
         <Board puzzle={data}/>
         <DraggableTiles puzzle={data} n={n}/>
