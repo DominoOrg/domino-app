@@ -9,14 +9,20 @@ export function usePuzzle(n: string, c: string) {
   return useQuery({
     queryKey: ["puzzle"],
     queryFn: async (): Promise<Puzzle> => {
-      const baseApiUrl = import.meta.env.MODE =="development"? "http://localhost:8000/api": "https://domino.myddns.me/api";
-      const apiUrl = baseApiUrl + 
-      "/select_puzzle?n=" +
-        n +
-        "&c=" +
-        c;
-      const response = await fetch(apiUrl);
-      return await response.json();
+      let response;
+      let json;
+      do {
+        const baseApiUrl = import.meta.env.MODE =="development"? "http://localhost:8000/api": "https://domino.myddns.me/api";
+        const apiUrl = baseApiUrl + 
+        "/select_puzzle?n=" +
+          n +
+          "&c=" +
+          c;
+        response = await fetch(apiUrl);
+        json = await response.json();
+        c = String(Number(c) - 1);
+      } while (json.tiles.length == 0);
+      return json;  
     }
   })
 }
