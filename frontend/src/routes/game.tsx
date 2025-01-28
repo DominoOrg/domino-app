@@ -29,10 +29,7 @@ const Game = () => {
         <DraggableTiles puzzle={data} n={n}/>
       </DragDropProvider>
       <div className="w-screen flex justify-end px-6">
-        <HelpCircle onClick={()=>{
-          localStorage.setItem("tutorialDone", "false");
-          openModal();
-        }}/>
+        <HelpCircle onClick={openModal}/>
       </div>
     </div>
   );

@@ -13,10 +13,13 @@ export default function useModal() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const updateProgress = () => {
     dispatch({ type: 'UPDATE_PROGRESS', payload: state.progress + 1 });
+    if (state.progress === 2) {
+      dispatch({ type: 'CLOSE_MODAL' });
+      localStorage.setItem("tutorialDone", "true");
+    }
   };
   const closeModal = () => {
     dispatch({ type: 'CLOSE_MODAL' });
-    localStorage.setItem("tutorialDone", "true");
   }
   const openModal = () => {
     localStorage.setItem("tutorialDone", "false");
