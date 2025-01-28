@@ -8,14 +8,14 @@ import { usePuzzle } from "@/hooks/api/usePuzzle";
 import { rootRoute } from "./__root";
 import Tutorial from "@/components/custom/tutorial";
 import { HelpCircle } from "lucide-react";
-import useModal from "@/hooks/modal/useModal";
+import useTutorial from "@/hooks/tutorial/useTutorial";
 
 const Game = () => {
   const { n, difficulty }: {
     n: string,
     difficulty: string
   } = GameRoute.useSearch();
-  const [state, updateProgress, closeModal, openModal] = useModal();
+  const [state, updateProgress, closeTutorial, openTutorial] = useTutorial();
   const { data, error, isPending } = usePuzzle(n, difficulty);
   if (isPending) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
@@ -23,13 +23,13 @@ const Game = () => {
   return (
     <div className="w-screen h-screen flex flex-col justify-around items-center overflow-hidden">
       <Header />
-      <Tutorial state={state} updateProgress={updateProgress} closeModal={closeModal}/>
+      <Tutorial state={state} updateProgress={updateProgress} closeModal={closeTutorial}/>
       <DragDropProvider>
         <Board puzzle={data}/>
         <DraggableTiles puzzle={data} n={n}/>
       </DragDropProvider>
       <div className="w-screen flex justify-end px-6">
-        <HelpCircle onClick={openModal}/>
+        <HelpCircle onClick={openTutorial}/>
       </div>
     </div>
   );

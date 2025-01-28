@@ -1,6 +1,15 @@
 import { useReducer } from "react";
 
-export default function useModal() {
+type TutorialState = {
+  open: boolean;
+  progress: number;
+  title: string;
+  description: string;
+  gif: any;
+  cta: string;
+};
+
+export default function useTutorial(): [TutorialState, () => void, () => void, () => void] {
   const isFirstTime = !localStorage.getItem("tutorialDone") || localStorage.getItem("tutorialDone") === "false";
   const initialState = {
     open: isFirstTime,
@@ -14,19 +23,19 @@ export default function useModal() {
   const updateProgress = () => {
     dispatch({ type: 'UPDATE_PROGRESS', payload: state.progress + 1 });
     if (state.progress === 2) {
-      dispatch({ type: 'CLOSE_MODAL' });
+      dispatch({ type: 'CLOSE_tutorial' });
       localStorage.setItem("tutorialDone", "true");
     }
   };
-  const closeModal = () => {
+  const closeTutorial = () => {
     dispatch({ type: 'CLOSE_MODAL' });
   }
-  const openModal = () => {
+  const openTutorial = () => {
     localStorage.setItem("tutorialDone", "false");
     dispatch({ type: 'UPDATE_PROGRESS', payload: 0 });
   }
 
-  return [state, updateProgress, closeModal, openModal];
+  return [state, updateProgress, closeTutorial, openTutorial];
 }
   
 const reducer = (state: any, action: any) => {
