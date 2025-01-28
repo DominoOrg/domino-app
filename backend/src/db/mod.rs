@@ -16,14 +16,24 @@ pub fn insert_puzzle(puzzle: Puzzle, solution: Solution, n: usize, complexity: u
     // hash puzzle for id
     let puzzle_id = hash_id(puzzle.clone());
     let solution_id = hash_id(solution.clone());
-    // insert collection entity
+    // insert collection entity for the puzzle
     let mut stmt = ("INSERT INTO collection (id, n, len) VALUES (\"".to_string() +
         &puzzle_id.to_string() + "\", " +
         &n.to_string() + ", " +
         &puzzle.len().to_string() +
     ");").to_string();
     println!("{stmt}");
-    mutation(stmt)?;
+    if mutation(stmt).is_err() {
+        return Ok(false);
+    };
+    // insert collection entity for the solution
+    stmt = ("INSERT INTO collection (id, n, len) VALUES (\"".to_string() +
+        &solution_id.to_string() + "\", " +
+        &n.to_string() + ", " +
+        &solution.len().to_string() +
+    ");").to_string();
+    println!("{stmt}");
+    let _ = mutation(stmt);
     for (i, &tile) in solution.iter().enumerate() {
         // insert tile 
         let tile_id = hash_id(tile);
@@ -54,7 +64,7 @@ pub fn insert_puzzle(puzzle: Puzzle, solution: Solution, n: usize, complexity: u
             &i.to_string() +
         ");").to_string();
         println!("{stmt}");
-        mutation(stmt)?;
+        let _ = mutation(stmt);
          
     }
     // insert solution
@@ -63,7 +73,7 @@ pub fn insert_puzzle(puzzle: Puzzle, solution: Solution, n: usize, complexity: u
         &solution_id +
     "\");").to_string();
     println!("{stmt}");
-    mutation(stmt)?;
+    let _ = mutation(stmt);
     // insert puzzle
     stmt = ("INSERT INTO puzzle(id, collection_id, c, solved_by) VALUES (\"".to_string() +
         &puzzle_id + "\", \"" +
@@ -82,6 +92,23 @@ pub fn select_puzzle_from_db(n: i32, c: i32) -> Result<Puzzle, sqlite::Error> {
     let puzzle = query_puzzle(n.try_into().unwrap(), c.try_into().unwrap()); 
     // if no puzzle match the criteria return None
     puzzle
+}
+
+pub fn delete_puzzle(puzzle: Puzzle) -> Result<bool, sqlite::Error> {
+    let puzzle_id = hash_id(puzzle.clone());
+    let stmt = ("DELETE FROM puzzle WHERE id = \"".to_string() + &puzzle_id.to_string() + "\";").to_string();
+    println!("{stmt}");
+    let _ =mutation(stmt);
+    let stmt = ("DELETE FROM collection WHERE id = \"".to_string() + &puzzle_id.to_string() + "\";").to_string();
+    println!("{stmt}");
+    let _ =mutation(stmt);
+    for tile in puzzle.iter() {
+        let tile_id = hash_id(tile);
+        let stmt = ("DELETE FROM inserted_tile WHERE tile_id = \"".to_string() + &tile_id.to_string() + " AND collection_id = \"" + &puzzle_id.to_string() + "\";").to_string();
+        println!("{stmt}");
+        let _ =mutation(stmt);
+    }
+    Ok(true)
 }
 
 fn setup_tables() -> Result<(), sqlite::Error> {

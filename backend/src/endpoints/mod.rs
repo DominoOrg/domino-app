@@ -40,17 +40,31 @@ pub struct InsertedResponse {
 #[post("/insert_puzzles?<n>&<number_of_puzzles>")]
 pub fn insert_puzzles(n: usize, number_of_puzzles: usize) -> Result<Json<InsertedResponse>, Status> {
     let mut inserted: HashMap<usize, usize> = HashMap::new();
+    inserted.insert(1, 0);
+    inserted.insert(2, 0);
+    inserted.insert(3, 0);
     for _ in 0..number_of_puzzles {
-        println!("n: {}", n);
-        let puzzle = generate_puzzle(n, true);
+        let max_hole = 2 * n + 1;
+        let puzzle = generate_puzzle(n, max_hole, true);
         if validate_puzzle(&puzzle).is_err() {
             continue;
         }
         if let Ok(solution) = solve_puzzle(&puzzle) {
             let complexity = classify_puzzle(&puzzle);
-            if insert_puzzle(puzzle, solution, n, complexity).is_ok() {
-                inserted.entry(complexity).and_modify(|v| *v += 1).or_insert(1);
-            }    
+            let result = insert_puzzle(puzzle.clone(), solution.clone(), n, complexity);
+            if let Err(error) = result{
+                println!("Failed to insert puzzle: {:?} because of error: {:?}", puzzle, error);
+                break;
+            } else {
+                if let Ok(result) = result {
+                    if result {
+                        println!("Successfully inserted puzzle: {:?} with solution: {:?} with complexity: {}", puzzle, solution, complexity);
+                        inserted.entry(complexity).and_modify(|v| *v += 1).or_insert(1);        
+                    } else {
+                        println!("Failed to insert duplicate puzzle: {:?} with solution: {:?} with complexity: {}", puzzle, solution, complexity);
+                    }
+                }
+            }
         }
     }
     Ok(Json(InsertedResponse {
