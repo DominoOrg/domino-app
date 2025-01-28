@@ -1,4 +1,4 @@
-import { useDraggable } from "@/draganddrop/Draggable";
+import { useDraggable } from "@/hooks/draganddrop/useDraggable";
 
 const FreeTile: React.FC<{
   tile: [number, number],
