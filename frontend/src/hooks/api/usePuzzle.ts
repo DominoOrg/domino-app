@@ -12,7 +12,8 @@ export function usePuzzle(n: string, c: string) {
       let response;
       let json;
       do {
-        const baseApiUrl = import.meta.env.MODE =="development"? "http://localhost:8000/api": "https://domino.myddns.me/api";
+        // const baseApiUrl = import.meta.env.MODE =="development"? "http://localhost:8000/api": "https://domino.myddns.me/api";
+        const baseApiUrl = "http://localhost:8080/api";
         const apiUrl = baseApiUrl + 
         "/select_puzzle?n=" +
           n +

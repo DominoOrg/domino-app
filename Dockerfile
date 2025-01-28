@@ -4,7 +4,7 @@
 FROM rust:1.82-slim-bullseye AS backend-builder
 WORKDIR /usr/src/backend
 COPY ./backend .
-RUN rustup target add aarch64-unknown-linux-gnu
+# RUN rustup target add aarch64-unknown-linux-gnu
 RUN cargo install --path .
 
 FROM node:23-bullseye-slim AS frontend-builder
@@ -17,9 +17,9 @@ FROM debian:bullseye-slim
 ENV ROCKET_PORT=8080
 ENV ROCKET_ADDRESS=0.0.0.0
 WORKDIR /usr/local/bin
-COPY --from=backend-builder /usr/local/cargo/bin/domino-rs ./domino-rs
-COPY ./backend/domino.db /usr/local/bin/db/
+COPY --from=backend-builder /usr/local/cargo/bin/backend ./backend
+COPY ./backend/domino.db /usr/local/bin/
 COPY --from=frontend-builder /usr/src/frontend/dist/. ./dist/
 RUN mv ./dist ./static
 
-CMD ["/usr/local/bin/domino-rs"]
+CMD ["/usr/local/bin/backend"]

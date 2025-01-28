@@ -94,23 +94,6 @@ pub fn select_puzzle_from_db(n: i32, c: i32) -> Result<Puzzle, sqlite::Error> {
     puzzle
 }
 
-pub fn delete_puzzle(puzzle: Puzzle) -> Result<bool, sqlite::Error> {
-    let puzzle_id = hash_id(puzzle.clone());
-    let stmt = ("DELETE FROM puzzle WHERE id = \"".to_string() + &puzzle_id.to_string() + "\";").to_string();
-    println!("{stmt}");
-    let _ =mutation(stmt);
-    let stmt = ("DELETE FROM collection WHERE id = \"".to_string() + &puzzle_id.to_string() + "\";").to_string();
-    println!("{stmt}");
-    let _ =mutation(stmt);
-    for tile in puzzle.iter() {
-        let tile_id = hash_id(tile);
-        let stmt = ("DELETE FROM inserted_tile WHERE tile_id = \"".to_string() + &tile_id.to_string() + " AND collection_id = \"" + &puzzle_id.to_string() + "\";").to_string();
-        println!("{stmt}");
-        let _ =mutation(stmt);
-    }
-    Ok(true)
-}
-
 fn setup_tables() -> Result<(), sqlite::Error> {
     mutation("CREATE TABLE IF NOT EXISTS tile (
         id TEXT PRIMARY KEY,
