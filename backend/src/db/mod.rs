@@ -22,7 +22,7 @@ pub fn insert_puzzle(puzzle: Puzzle, solution: Solution, n: usize, complexity: u
         &n.to_string() + ", " +
         &puzzle.len().to_string() +
     ");").to_string();
-    println!("{stmt}");
+    //println!("{stmt}");
     if mutation(stmt).is_err() {
         return Ok(false);
     };
@@ -32,7 +32,7 @@ pub fn insert_puzzle(puzzle: Puzzle, solution: Solution, n: usize, complexity: u
         &n.to_string() + ", " +
         &solution.len().to_string() +
     ");").to_string();
-    println!("{stmt}");
+    //println!("{stmt}");
     let _ = mutation(stmt);
     for (i, &tile) in solution.iter().enumerate() {
         // insert tile 
@@ -42,7 +42,7 @@ pub fn insert_puzzle(puzzle: Puzzle, solution: Solution, n: usize, complexity: u
             &tile.0.to_string() + ", " +
             &tile.1.to_string() +
         ");").to_string();
-        println!("{stmt}");
+        //println!("{stmt}");
         let _ = mutation(stmt);   
         // Inserted_tile relation between the puzzle and the tile
         let puzzle_tile = puzzle.get(i).unwrap();
@@ -54,7 +54,7 @@ pub fn insert_puzzle(puzzle: Puzzle, solution: Solution, n: usize, complexity: u
                 &tile_id + "\", " +
                 &i.to_string() +
             ");").to_string();
-            println!("{stmt}");
+            //println!("{stmt}");
             mutation(stmt)?;
         }
         // insert inserted_tile relation between the solution and the tile
@@ -63,7 +63,7 @@ pub fn insert_puzzle(puzzle: Puzzle, solution: Solution, n: usize, complexity: u
             &tile_id + "\", " +
             &i.to_string() +
         ");").to_string();
-        println!("{stmt}");
+        //println!("{stmt}");
         let _ = mutation(stmt);
          
     }
@@ -72,7 +72,7 @@ pub fn insert_puzzle(puzzle: Puzzle, solution: Solution, n: usize, complexity: u
         &solution_id + "\", \"" +
         &solution_id +
     "\");").to_string();
-    println!("{stmt}");
+    //println!("{stmt}");
     let _ = mutation(stmt);
     // insert puzzle
     stmt = ("INSERT INTO puzzle(id, collection_id, c, solved_by) VALUES (\"".to_string() +
@@ -81,7 +81,7 @@ pub fn insert_puzzle(puzzle: Puzzle, solution: Solution, n: usize, complexity: u
         &complexity.to_string() + ", \"" +
         &solution_id +
     "\");").to_string();
-    println!("{stmt}");
+    //println!("{stmt}");
     mutation(stmt)?;
     Ok(true)
 }
