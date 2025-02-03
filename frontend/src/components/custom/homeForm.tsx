@@ -18,7 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { router } from "../../main";
-import { useSelectPuzzle } from "@/hooks/api/usePuzzle";
+import { useEffect } from "react";
 
 export const formSchema = z.object({
   n: z.enum(["3", "6", "9"]).default("3"),
@@ -33,13 +33,27 @@ function HomeForm() {
       difficulty: "1",
     },
   });
-  let values = form.getValues();
-  let { data } = useSelectPuzzle(values.n, values.difficulty);
-  const onSubmit = (_values: z.infer<typeof formSchema>) => {
-    if (data.id) {
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    let response;
+    let json;
+    let c = Number(values.difficulty);
+    do {
+      // const baseApiUrl = import.meta.env.MODE =="development"? "http://localhost:8000/api": "https://domino.myddns.me/api";
+      const baseApiUrl = "http://localhost:8000/api";
+      const apiUrl = baseApiUrl + 
+      "/select_puzzle?n=" +
+        values.n +
+        "&c=" +
+        c;
+      response = await fetch(apiUrl);
+      json = await response.json();
+      if (!json.id) c -= 1;
+    } while (!json.id);
+    if (json.id) {
       router.navigate({
         to: "/game",
-        search: { puzzleId: data.id },
+        search: { puzzleId: json.id },
       });  
     }
    };
