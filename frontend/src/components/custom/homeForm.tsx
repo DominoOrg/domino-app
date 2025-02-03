@@ -18,7 +18,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { router } from "../../main";
-import { useEffect } from "react";
 
 export const formSchema = z.object({
   n: z.enum(["3", "6", "9"]).default("3"),
