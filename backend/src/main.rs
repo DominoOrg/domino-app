@@ -2,7 +2,7 @@ use rocket::routes;
 use rocket::http::Method;
 use rocket::fs::FileServer;
 use rocket_cors::{AllowedHeaders, AllowedOrigins, Cors};
-use endpoints::{insert_puzzles, select_puzzle};
+use endpoints::{insert_puzzles, select_puzzle, get_puzzle_by_id};
 
 mod endpoints;
 mod db;
@@ -27,6 +27,6 @@ fn cors() -> Cors {
 fn rocket() -> _ {
     rocket::build()
         .mount("/", FileServer::from("static"))
-        .mount("/api", routes![select_puzzle, insert_puzzles])
+        .mount("/api", routes![select_puzzle, get_puzzle_by_id, insert_puzzles])
         .attach(cors())
 }

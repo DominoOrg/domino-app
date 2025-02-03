@@ -1,6 +1,8 @@
 use std::hash::{DefaultHasher, Hash, Hasher};
-use query::{mutation, query_puzzle};
-use domino_lib::types::{Puzzle, Solution};
+use query::{mutation, query_puzzle, query_puzzle_by_id};
+use domino_lib::{Puzzle, Solution};
+
+use crate::endpoints::ApiPuzzle;
 
 mod query;
 
@@ -86,12 +88,18 @@ pub fn insert_puzzle(puzzle: Puzzle, solution: Solution, n: usize, complexity: u
     Ok(true)
 }
 
-pub fn select_puzzle_from_db(n: i32, c: i32) -> Result<Puzzle, sqlite::Error> {
+pub fn select_puzzle_from_db(n: i32, c: i32) -> Result<ApiPuzzle, sqlite::Error> {
     setup_tables()?;
     // select puzzle by length n and complexity c
-    let puzzle = query_puzzle(n.try_into().unwrap(), c.try_into().unwrap()); 
-    // if no puzzle match the criteria return None
-    puzzle
+    let puzzle = query_puzzle(n.try_into().unwrap(), c.try_into().unwrap())?; 
+    Ok(puzzle)
+}
+
+pub fn select_puzzle_by_id_from_db(id: String) -> Result<ApiPuzzle, sqlite::Error> {
+    setup_tables()?;
+    // select puzzle by length n and complexity c
+    let puzzle = query_puzzle_by_id(id)?; 
+    Ok(puzzle)
 }
 
 fn setup_tables() -> Result<(), sqlite::Error> {

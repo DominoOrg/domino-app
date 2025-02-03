@@ -1,3 +1,5 @@
+import { InvalidLengthError, UndefinedPuzzleError } from "./errors";
+
 type Tile = [number, number];
 
 export function filterTiles(tiles: Tile[], remainingTiles: (Tile | null)[]): Tile[] {
@@ -42,3 +44,55 @@ export const computeTileset = (n: string): [number, number][] => {
       .filter((el) => el != undefined);
       return tileset;
   }
+
+
+
+export const getN = (puzzle: ([number, number] | null)[] | undefined): number | never => {
+  let n = 0;
+  if (!puzzle) {
+    throw new UndefinedPuzzleError("The puzzle is not defined");
+  }
+  n = (-3.0 + Math.sqrt(1.0 + 8.0 * puzzle.length)) / 2.0;
+  if (n - Math.floor(n) == 0.0) {
+    return n;
+  }
+  n = (-1.0 + Math.sqrt(2.0 * puzzle.length));
+  if (n - Math.floor(n) == 0.0) {
+    return n;
+  }
+  n = (-1.0 + Math.sqrt(1.0 + 4.0 * puzzle.length)) / 2.0;
+  if (n - Math.floor(n) == 0.0) {
+    return n;
+  }
+  n = Math.sqrt(puzzle.length);
+  if (n - Math.floor(n) == 0.0) {
+    return n;
+  }
+  throw new InvalidLengthError("The puzzle has invalid length");
+}
+
+/**
+ * 
+pub fn get_n(puzzle: &Puzzle) -> Result<i32, DominoError> {
+    if puzzle.len() == 0 {
+        return Err(DominoError::InvalidLength);
+    }
+    let mut tmp: f32 = (-3.0 + (1.0 as f32 + 8.0 as f32 * puzzle.len() as f32).sqrt()) / 2.0;
+    if tmp - tmp.floor() == 0.0 {
+        return Ok(tmp as i32);
+    }
+    tmp = -1.0 + (2.0 as f32 * puzzle.len() as f32).sqrt();
+    if tmp - tmp.floor() == 0.0 {
+        return Ok(tmp as i32);
+    }
+    tmp = (-1.0 + (1.0 as f32 + 4.0 * puzzle.len() as f32).sqrt()) / 2.0;
+    if tmp - tmp.floor() == 0.0 {
+        return Ok(tmp as i32);
+    }
+    tmp = (puzzle.len() as f32).sqrt();
+    if tmp - tmp.floor() == 0.0 {
+        return Ok(tmp as i32);
+    }
+    Err(DominoError::InvalidLength)
+}
+ */

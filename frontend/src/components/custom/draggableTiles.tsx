@@ -1,6 +1,6 @@
 import { computeTileset, filterTiles } from "@/utils/tileset";
 import Tile from "./tile/tile";
-import { Puzzle } from "@/hooks/api/usePuzzle";
+import { Puzzle } from "@/hooks/api/useSelectPuzzle";
 
 interface RemainingTilesProps {
   puzzle: Puzzle,

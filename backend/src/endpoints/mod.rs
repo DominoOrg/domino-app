@@ -1,31 +1,49 @@
-use std::{collections::HashMap, sync::{Arc, Mutex}, thread::spawn, time::Instant};
-use domino_lib::functionalities::{classify::classify_puzzle, generate::generate_puzzle, solve::solve_puzzle, validate::validate_puzzle};
+use std::{collections::HashMap, sync::{Arc, Mutex}, thread::spawn};
+use domino_lib::{classify_puzzle, generate_puzzle, solve_puzzle, validate_puzzle};
 use rocket::{get, http::Status, post, serde::json::Json};
-use crate::db::{insert_puzzle, select_puzzle_from_db};
-pub use performance::PerformanceTimer;
-
-mod performance;
+use crate::db::{insert_puzzle, select_puzzle_by_id_from_db, select_puzzle_from_db};
 
 #[derive(serde::Serialize)]
 pub(crate) struct ApiPuzzle { 
-    id: String,
-    tiles: Vec<Option<Vec<i32>>>
+    pub id: String,
+    pub tiles: Vec<Option<Vec<i32>>>
 }
 
 #[get("/select_puzzle?<n>&<c>")]
 pub fn select_puzzle(n: i32, c: i32) -> Result<Json<ApiPuzzle>,Status> {
     if let Ok(puzzle) = select_puzzle_from_db(n, c) {
-        let mapped_puzzle = puzzle
+        let mapped_puzzle = puzzle.tiles
         .into_iter()
         .map(|option_tile|
             if let Some(tile) = option_tile {
-                Some(vec![tile.0, tile.1])
+                Some(vec![tile[0], tile[1]])
             } else {
                 None
             }
         )
         .collect();
-        let json_puzzle = Json(ApiPuzzle { id: "".to_string(), tiles: mapped_puzzle });
+        let json_puzzle = Json(ApiPuzzle { id: puzzle.id, tiles: mapped_puzzle });
+        Ok(json_puzzle)
+    } else {
+        Err(Status { code: 404 })
+    }
+}
+
+
+#[get("/get_puzzle_by_id?<id>")]
+pub fn get_puzzle_by_id(id: String) -> Result<Json<ApiPuzzle>,Status> {
+    if let Ok(puzzle) = select_puzzle_by_id_from_db(id) {
+        let mapped_puzzle = puzzle.tiles
+        .into_iter()
+        .map(|option_tile|
+            if let Some(tile) = option_tile {
+                Some(vec![tile[0], tile[1]])
+            } else {
+                None
+            }
+        )
+        .collect();
+        let json_puzzle = Json(ApiPuzzle { id: puzzle.id.clone(), tiles: mapped_puzzle });
         Ok(json_puzzle)
     } else {
         Err(Status { code: 404 })
@@ -42,27 +60,20 @@ pub struct InsertedResponse {
 pub async fn insert_puzzles(n: usize, number_of_puzzles: usize) -> Result<Json<InsertedResponse>, Status> {
     let inserted = Arc::new(Mutex::new(HashMap::new()));
     let mut handles = Vec::new();
-    let timer = Arc::new(Mutex::new(PerformanceTimer::new()));
-    let mut last_print: Instant = Instant::now();
     for _ in 0..number_of_puzzles {
         let inserted_clone = inserted.clone();
-        let timer_clone = Arc::clone(&timer);
         let handle = spawn(move || {
-            if let Ok(complexity) = insert_valid_puzzle(n, timer_clone) {
+            if let Ok(complexity) = insert_valid_puzzle(n) {
+                println!("Inserted puzzle with complexity: {}", complexity);
                 inserted_clone.lock().unwrap().entry(complexity).and_modify(|v| *v += 1).or_insert(1);
             }
         });
         handles.push(handle);
     }
     
-    for (i, handle) in handles.into_iter().enumerate() {
-        if last_print.elapsed().as_millis() > 1000 {
-            last_print = Instant::now();
-            print!("\rCompleted {} out of {} tentatives", i+1, number_of_puzzles);
-        }
+    for handle in handles {
         let _ = handle.join();
     }
-    timer.lock().unwrap().stop();
 
     let inserted_map = inserted.clone().lock().unwrap().clone();
     Ok(Json(InsertedResponse {
@@ -70,33 +81,16 @@ pub async fn insert_puzzles(n: usize, number_of_puzzles: usize) -> Result<Json<I
     }))
 }
 
-fn insert_valid_puzzle(n: usize, timer: Arc<Mutex<PerformanceTimer>>) -> Result<usize, String> {
+fn insert_valid_puzzle(n: usize) -> Result<usize, String> {
     let l = if n%2==0 {(n + 1) * (n + 2) / 2} else {(n + 1) * (n + 1) / 2}; 
-    let max_hole = l - (2 * n + 1);
-    let mut start = Instant::now();
+    let max_hole = l - (n as f32 / 2.0).floor() as usize;
     let puzzle = generate_puzzle(n, max_hole, true);
-    timer.lock().unwrap().generations.push(start.elapsed());
-    timer.clear_poison();
-    start = Instant::now();
-    if validate_puzzle(&puzzle).is_err() {
-        timer.lock().unwrap().validations.push(start.elapsed());
-        timer.clear_poison();
-        return Err("The puzzle generated is not valid".to_string());
-    }
-    timer.lock().unwrap().validations.push(start.elapsed());
-    timer.clear_poison();
-    start = Instant::now();
     if let Ok(solution) = solve_puzzle(&puzzle) {
-        timer.lock().unwrap().validations.push(start.elapsed());
-        timer.clear_poison();
-        start = Instant::now();
+        if validate_puzzle(&puzzle, &solution).is_err() {
+            return Err("The puzzle generated is not valid".to_string());
+        }
         let complexity = classify_puzzle(&puzzle);
-        timer.lock().unwrap().classifications.push(start.elapsed());
-        timer.clear_poison();
-        start = Instant::now();
         let result = insert_puzzle(puzzle.clone(), solution.clone(), n, complexity);
-        timer.lock().unwrap().dbinsertions.push(start.elapsed());
-        timer.clear_poison();
         if let Err(error) = result{
             return Err(error.message.unwrap());
         } else {
@@ -113,8 +107,6 @@ fn insert_valid_puzzle(n: usize, timer: Arc<Mutex<PerformanceTimer>>) -> Result<
             }
         }
     } else {
-        timer.lock().unwrap().validations.push(start.elapsed());
-        timer.clear_poison();
         return Err("The puzzle generated is not solvable".to_string());
     }
 
