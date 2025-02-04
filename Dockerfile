@@ -4,8 +4,9 @@
 FROM rust:1.82-slim-bullseye AS backend-builder
 WORKDIR /usr/src/backend
 COPY ./backend .
-# RUN rustup target add aarch64-unknown-linux-gnu
-RUN cargo install --path .
+RUN apt update \
+  && apt-get install -y g++ cmake libssl-dev pkg-config clang\
+  && cargo install --path .
 
 FROM node:23-bullseye-slim AS frontend-builder
 WORKDIR /usr/src/frontend
