@@ -12,9 +12,7 @@ export function useGetPuzzle(id: string) {
         let response;
         let json;
         // const baseApiUrl = import.meta.env.MODE =="development"? "http://localhost:8000/api": "https://domino.myddns.me/api";
-        const baseApiUrl = "http://localhost:8000/api";
-        const apiUrl = baseApiUrl + 
-        "/get_puzzle_by_id?id=" +
+        const apiUrl = "api/get_puzzle_by_id?id=" +
         id;
         response = await fetch(apiUrl);
         json = await response.json();
