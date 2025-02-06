@@ -9,7 +9,7 @@ import Tutorial from "@/components/custom/tutorial";
 import { HelpCircle } from "lucide-react";
 import useTutorial from "@/hooks/tutorial/useTutorial";
 import { getN } from "@/utils/tileset";
-import { z } from 'zod';
+// import { z } from 'zod';
 
 const Game = () => {
   const { puzzleId }: {
@@ -38,13 +38,13 @@ const Game = () => {
 };
 
 
-const gameSearchSchema = z.object({
-  puzzleId: z.string()
-});
+// const gameSearchSchema = z.object({
+//   puzzleId: z.string(),
+// });
 
 export const GameRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/game",
   component: Game,
-  validateSearch: (search) => gameSearchSchema.parse(search)
+  // validateSearch: (search) => true
 });

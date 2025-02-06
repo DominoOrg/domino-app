@@ -26,7 +26,8 @@ fn cors() -> Cors {
 #[rocket::launch]
 fn rocket() -> _ {
     rocket::build()
-        .mount("/", FileServer::from("static"))
         .mount("/api", routes![select_puzzle, get_puzzle_by_id, insert_puzzles])
+        .mount("/", FileServer::from("static").rank(2))
+        .mount("/game", FileServer::from("static").rank(3))
         .attach(cors())
 }
