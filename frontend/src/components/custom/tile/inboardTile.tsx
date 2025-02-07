@@ -1,7 +1,5 @@
 import clsx from "clsx";
 import { GridTransform } from "./tile";
-import { useDroppable } from "@/hooks/draganddrop/useDroppable";
-import { DragItem } from "@/hooks/draganddrop/DragDropContext";
 
 type InBoardProps = {
   tile: [number, number] | null;
@@ -23,17 +21,6 @@ const InBoardTile: React.FC<InBoardProps> = (props) => {
     n: props.n
   });
   const { tile, index, isMissing } = props;
-  const handleDrop = (draggedData: DragItem, dropZoneElement: HTMLElement | null) => {
-    if (dropZoneElement) {
-      let draggedElement = document.getElementById(draggedData.id);
-      if (draggedElement) {
-        const tmp = (draggedElement as HTMLImageElement).src;
-        (draggedElement as HTMLImageElement).src = (dropZoneElement as HTMLImageElement).src;
-        (dropZoneElement as HTMLImageElement).src = tmp;
-      }
-    }
-  }
-
   const rotateTile = (e: any) => {
     e.preventDefault();
     let className = e.target.className;
@@ -42,11 +29,6 @@ const InBoardTile: React.FC<InBoardProps> = (props) => {
     let newRotation = (parseInt(actualRotation) + 180) % 360;
     e.target.className = (e.target as HTMLImageElement).className.replace("rotate-" + actualRotation, "rotate-" + newRotation);
   }
-
-  const { elementRef } = useDroppable({
-    acceptTypes: ["freeTile"],
-    onDrop: handleDrop
-  });
 
   return (
     <>
@@ -67,7 +49,6 @@ const InBoardTile: React.FC<InBoardProps> = (props) => {
       {isMissing && (
         // Only if the tile is missing mark it with the drop ref
           <img
-            ref={elementRef}
             key={index}
             src="missing_tile.png"
             className={imgClasses}

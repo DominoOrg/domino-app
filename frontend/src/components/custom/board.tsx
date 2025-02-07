@@ -14,6 +14,7 @@ interface BoardProps {
 const Board: React.FC<BoardProps> = ({ puzzle }) => {
   const tiles = puzzle?.tiles;
   const [n, rows, cols, spiral] = computeSpiral(tiles!);
+  
   return (
     <div className={clsx(
         n==3?"h-1/3":"",

@@ -1,5 +1,3 @@
-import { useDraggable } from "@/hooks/draganddrop/useDraggable";
-
 const FreeTile: React.FC<{
   tile: [number, number],
   index: number,
@@ -22,15 +20,9 @@ const FreeTile: React.FC<{
   }
   imgClasses += heighClass;
   const id = tile[0] + "" + tile[1];
-  const ref = useDraggable({
-    id,
-    type: "freeTile",
-    data: tile,
-  });
 
   return (
     <img
-      ref={ref}
       id={id}
       key={index}
       src={
