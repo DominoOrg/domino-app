@@ -1,8 +1,9 @@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
+import { TutorialState } from "@/hooks/tutorial/useTutorial";
 
 type TutorialProps = {
-  state: any,
+  state: TutorialState,
   updateProgress: () => void,
   closeModal: () => void
 }

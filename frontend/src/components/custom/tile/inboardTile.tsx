@@ -1,16 +1,16 @@
 import clsx from "clsx";
 import { GridTransform } from "./tile";
+import { Tile, Option } from "@/utils/types/game_state";
 
 type InBoardProps = {
-  tile: [number, number] | null;
+  tile: Option<Tile>;
   index: number;
   tileClasses: string;
   imgClasses: string;
-  isMissing: boolean;
   gridTransform: GridTransform;
   n: number;
-  preceidingTile?: [number, number];
-  followingTile?: [number, number];
+  preceidingTile?: Tile;
+  followingTile?: Tile;
 };
 
 const InBoardTile: React.FC<InBoardProps> = (props) => {
@@ -20,39 +20,41 @@ const InBoardTile: React.FC<InBoardProps> = (props) => {
     gridTransform: props.gridTransform,
     n: props.n
   });
-  const { tile, index, isMissing } = props;
-  const rotateTile = (e: any) => {
+  const { tile, index } = props;
+  const rotateTile = (e: React.PointerEvent) => {
     e.preventDefault();
-    let className = e.target.className;
-    let indexStart = className.indexOf("rotate-");
-    let actualRotation = className.substring(indexStart + 7, className.indexOf(" ", indexStart));
-    let newRotation = (parseInt(actualRotation) + 180) % 360;
-    e.target.className = (e.target as HTMLImageElement).className.replace("rotate-" + actualRotation, "rotate-" + newRotation);
+    if (!e.target) return;
+    const img = e.target as HTMLImageElement;
+    const className = img.className;
+    const indexStart = className.indexOf("rotate-");
+    const actualRotation = className.substring(indexStart + 7, className.indexOf(" ", indexStart));
+    const newRotation = (parseInt(actualRotation) + 180) % 360;
+    img.className = img.className.replace("rotate-" + actualRotation, "rotate-" + newRotation);
   }
 
   return (
     <>
-      {!isMissing && (
+      {tile && (
           <img
-            id={tile![0]+""+tile![1]}
+            id={tile.left+""+tile.right}
             key={index}
             src={
               "tile" +
-              (tile![0] > tile![1]
-                ? tile![0] + "" + tile![1]
-                : tile![1] + "" + tile![0]) +
+              (tile.left > tile.right
+                ? tile.left + "" + tile.right
+                : tile.right + "" + tile.left) +
               ".png"
             }
             className={imgClasses}
           />
       )}
-      {isMissing && (
+      {!tile && (
         // Only if the tile is missing mark it with the drop ref
           <img
             key={index}
             src="missing_tile.png"
             className={imgClasses}
-            onClick={rotateTile}
+            onPointerDown={rotateTile}
           />
       )}
     </>
@@ -62,7 +64,7 @@ const InBoardTile: React.FC<InBoardProps> = (props) => {
 export default InBoardTile;
 
 function setupClasses(props: {
-  tile: [number, number] | null,
+  tile: Option<Tile>,
   imgClasses: string,
   gridTransform?: GridTransform,
   n: number
@@ -83,8 +85,8 @@ function setupClasses(props: {
     // if the tile in the sequence appears to be vertical and with the first number lower
     // than the second flip it
     if (
-      ((rotation == 90 || rotation == 180) && tile && tile[0] > tile[1]) ||
-      ((rotation == 270 || rotation == 0) && tile && tile[0] > tile[1])
+      ((rotation == 90 || rotation == 180) && tile && tile.left > tile.right) ||
+      ((rotation == 270 || rotation == 0) && tile && tile.left > tile.right)
     ) {
       rotation = (rotation + 180) % 360;
     }

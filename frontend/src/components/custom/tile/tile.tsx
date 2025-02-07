@@ -1,5 +1,6 @@
 import InBoardTile from "./inboardTile";
 import FreeTile from "./freeTile";
+import { Tile as TileType, Option } from "@/utils/types/game_state";
 
 export type GridTransform = {
   current_row: number;
@@ -10,12 +11,12 @@ export type GridTransform = {
 };
 
 const Tile: React.FC<{
-  tile: [number, number] | null;
+  tile: Option<TileType>;
   index: number;
   gridTransform?: GridTransform;
   n: number;
-  precTile?: [number, number];
-  followingTile?: [number, number];
+  precTile?: TileType;
+  followingTile?: TileType;
 }> = ({
   tile,
   index,
@@ -25,12 +26,11 @@ const Tile: React.FC<{
   followingTile,
 }) => {
   const isInBoard = gridTransform != null;
-  const isMissing = !tile;
   const isFree = gridTransform == null && tile;
   // Initialize base classes for the div parent a.k.a. tile classes
-  let tileClasses = "overflow-hidden flex justify-center items-center ";
+  const tileClasses = "overflow-hidden flex justify-center items-center ";
   // Initialize base classes for the img contained in the div
-  let imgClasses = "overflow-hidden ";
+  const imgClasses = "overflow-hidden ";
   let element = <></>;
   if (isInBoard) {
     element = (
@@ -40,7 +40,6 @@ const Tile: React.FC<{
         gridTransform={gridTransform}
         tileClasses={tileClasses}
         imgClasses={imgClasses}
-        isMissing={isMissing}
         n={n}
         preceidingTile={precTile}
         followingTile={followingTile}

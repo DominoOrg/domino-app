@@ -1,3 +1,4 @@
+import { Tile } from "@/utils/types/game_state";
 import { useQuery } from "@tanstack/react-query";
 
 export type Puzzle = {
@@ -9,13 +10,16 @@ export function useGetPuzzle(id: string) {
   return useQuery({
     queryKey: ["get_puzzle"],
     queryFn: async (): Promise<Puzzle> => {
-        let response;
-        let json;
-        // const baseApiUrl = import.meta.env.MODE =="development"? "http://localhost:8000/api": "https://domino.myddns.me/api";
-        const apiUrl = "api/get_puzzle_by_id?id=" +
-        id;
-        response = await fetch(apiUrl);
-        json = await response.json();
+        const apiUrl = "api/get_puzzle_by_id?id=" +id;
+        const response = await fetch(apiUrl);
+        const json = await response.json();    
+        json.tiles = json.tiles.map((tile: [number, number] | null) => {
+          if(tile) {
+            return new Tile(tile[0], tile[1]);
+          } else {
+            return null;
+          }
+        });
         return json;  
     }
   })

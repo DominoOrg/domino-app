@@ -1,17 +1,15 @@
-import { computeTileset, filterTiles } from "@/utils/tileset";
+import { Tile as TileType } from "@/utils/types/game_state";
 import Tile from "./tile/tile";
-import { Puzzle } from "@/hooks/api/usePuzzle";
 
 interface RemainingTilesProps {
-  puzzle: Puzzle,
-  n: string
+  tiles: TileType[]
+  n: number
 }
 
 const DraggableTiles: React.FC<RemainingTilesProps> = ({
-  puzzle: { tiles },
+  tiles,
   n
 }) => {
-  let remainingTiles = filterTiles(computeTileset(n), tiles);
   
   return (
     <div className="flex justify-center items-center w-full h-36 overflow-hidden">
@@ -20,7 +18,7 @@ const DraggableTiles: React.FC<RemainingTilesProps> = ({
         "w-5/6 md:w-3/4 lg:w-1/2"
 
       }>
-        {remainingTiles.map((tile, i) => (
+        {tiles.map((tile, i) => (
           <Tile
             key={i}
             tile={tile}

@@ -1,5 +1,7 @@
+import { Tile } from "@/utils/types/game_state";
+
 const FreeTile: React.FC<{
-  tile: [number, number],
+  tile: Tile,
   index: number,
   imgClasses: string,
   n: number
@@ -19,17 +21,17 @@ const FreeTile: React.FC<{
       break;
   }
   imgClasses += heighClass;
-  const id = tile[0] + "" + tile[1];
-
+  const id = tile.left + "" + tile.right;
+  
   return (
     <img
       id={id}
       key={index}
       src={
         "tile" +
-        (tile[0] > tile[1]
-          ? tile[0] + "" + tile[1]
-          : tile[1] + "" + tile[0]) +
+        (tile.left > tile.right
+          ? tile.left + "" + tile.right
+          : tile.right + "" + tile.left) +
         ".png"
       }
       className={imgClasses}

@@ -1,6 +1,7 @@
 import Tile from "@/components/custom/tile/tile";
+import { Tile as TileType, Option } from "@/utils/types/game_state";
 
-const computeN = (tiles: any[]) => {
+const computeN = (tiles: Array<Option<TileType>>) => {
   const l = tiles.length;
   const n_p = (-3 + Math.sqrt(1 + 8 * l)) / 2;
   const n_d = Math.sqrt(2 * l) - 1;
@@ -14,7 +15,7 @@ const computeN = (tiles: any[]) => {
 };
 
 export const computeSpiral = (
-  tiles: ([number, number] | null)[],
+  tiles: Array<Option<TileType>>,
 ) => {
   let rows = 16;
   let cols = 16;
