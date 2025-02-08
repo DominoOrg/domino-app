@@ -1,6 +1,7 @@
 import clsx from "clsx";
 import { GridTransform } from "./tile";
-import { Tile, Option } from "@/utils/types/game_state";
+import { Tile, Option } from "@/game/game_state";
+import { useDroppable } from "@dnd-kit/core";
 
 type InBoardProps = {
   tile: Option<Tile>;
@@ -31,6 +32,7 @@ const InBoardTile: React.FC<InBoardProps> = (props) => {
     const newRotation = (parseInt(actualRotation) + 180) % 360;
     img.className = img.className.replace("rotate-" + actualRotation, "rotate-" + newRotation);
   }
+  const { setNodeRef } = useDroppable({ id: index.toString() });
 
   return (
     <>
@@ -51,6 +53,7 @@ const InBoardTile: React.FC<InBoardProps> = (props) => {
       {!tile && (
         // Only if the tile is missing mark it with the drop ref
           <img
+            ref={setNodeRef}
             key={index}
             src="missing_tile.png"
             className={imgClasses}

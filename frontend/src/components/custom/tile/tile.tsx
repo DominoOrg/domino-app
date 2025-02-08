@@ -1,6 +1,6 @@
 import InBoardTile from "./inboardTile";
 import FreeTile from "./freeTile";
-import { Tile as TileType, Option } from "@/utils/types/game_state";
+import { Tile as TileType, Option } from "@/game/game_state";
 
 export type GridTransform = {
   current_row: number;
@@ -35,7 +35,7 @@ const Tile: React.FC<{
   if (isInBoard) {
     element = (
       <InBoardTile
-        tile={tile!}
+        tile={tile}
         index={index}
         gridTransform={gridTransform}
         tileClasses={tileClasses}

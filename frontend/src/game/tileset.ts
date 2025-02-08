@@ -46,6 +46,10 @@ export class TileSet {
       }
     }
   
+    at(position: number): Tile {
+      return this.tiles[position];
+    }
+
     add(tile: Tile): number {
       for (const t of this.tiles) {
         if (t.is_equal(tile)) {

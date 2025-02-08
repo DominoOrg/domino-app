@@ -1,4 +1,6 @@
-import { Tile } from "@/utils/types/game_state";
+import { Tile } from "@/game/game_state";
+import { useDraggable } from "@dnd-kit/core";
+import { CSS } from "@dnd-kit/utilities";
 
 const FreeTile: React.FC<{
   tile: Tile,
@@ -6,6 +8,10 @@ const FreeTile: React.FC<{
   imgClasses: string,
   n: number
 }> = ({ tile, index, imgClasses, n }) => {
+  const { attributes, listeners, setNodeRef, transform } = useDraggable({id: index.toString()});
+  const style = {
+    transform: CSS.Translate.toString(transform),
+  }
   let heighClass = "";
   switch(n) {
     case 3:
@@ -25,6 +31,10 @@ const FreeTile: React.FC<{
   
   return (
     <img
+      ref={setNodeRef}
+      {...attributes}
+      {...listeners}
+      style={style}
       id={id}
       key={index}
       src={

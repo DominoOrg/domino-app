@@ -1,21 +1,20 @@
-import { createRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import Board from "@/components/custom/board";
 import DraggableTiles from "@/components/custom/draggableTiles";
 import Header from "@/components/custom/header";
-import { rootRoute } from "./__root";
 import Tutorial from "@/components/custom/tutorial";
 import { HelpCircle } from "lucide-react";
 import useTutorial from "@/hooks/tutorial/useTutorial";
-import { useState } from "react";
+import { useReducer } from "react";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
-import { GameState } from "@/utils/types/game_state";
-import { Tile, Option } from "@/utils/types/game_state";
+import { GameState } from "@/game/game_state";
+import { Tile, Option } from "@/game/game_state";
 // import { z } from 'zod';
 
 const Game = () => {
   const { puzzleId }: {
     puzzleId: string
-  } = GameRoute.useSearch();
+  } = Route.useSearch();
   const [ state, updateProgress, closeTutorial, openTutorial ] = useTutorial();
   // const { data, error, isPending } = useGetPuzzle(puzzleId);
 
@@ -56,26 +55,42 @@ const Game = () => {
   };
   // let n = getN(data?.tiles);
 
-  const [gameState, setGameState] = useState(new GameState(data.tiles));
+  type Action = 
+    { type: "MOVE_TILE", payload: { tile: Tile, at: number } };
+
+  const reducer = (state: GameState, action: Action) => {
+    switch (action.type) {
+      case "MOVE_TILE":
+        state.moveTile(action.payload.tile, action.payload.at);
+        return new GameState(state.inBoardTiles, [...state.insertedTiles, [action.payload.tile, action.payload.at]]);
+    }
+  }
+
+  const [gameState, dispatch] = useReducer(reducer, new GameState(data.tiles, []));
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { over, active } = event;
 
-    if (over && over.id !== active.id) {
-      setGameState((currentState: GameState) => {
-        // currentState.moveTile(active.id, over.id);
-        return new GameState(currentState.inBoardTiles);
-      })
+    if (over && active && over.id !== active.id) {
+      const tile: Option<Tile> | undefined= gameState.freeTiles.at(Number(active.id));
+      if (!tile) return;
+      dispatch({
+        type: "MOVE_TILE",
+        payload: {
+          tile,
+          at: Number(over.id)
+        }
+      });
     }
   }
 
   return (
-    <div className="w-screen h-screen flex flex-col justify-around items-center overflow-hidden">
+    <div className="relative w-screen h-screen flex flex-col justify-around items-center overflow-hidden">
       <Header />
       <Tutorial state={state} updateProgress={updateProgress} closeModal={closeTutorial}/>
       <DndContext onDragEnd={handleDragEnd}>
         <Board tiles={gameState.inBoardTiles}/>
-        <DraggableTiles tiles={gameState.freeTiles.iter()} n={gameState.tileset.n}/>
+        <DraggableTiles tiles={[...gameState.freeTiles]} n={gameState.tileset.n}/>
       </DndContext>
       <div className="w-screen flex justify-end px-6">
         <HelpCircle onClick={openTutorial}/>
@@ -85,13 +100,6 @@ const Game = () => {
 };
 
 
-// const gameSearchSchema = z.object({
-//   puzzleId: z.string(),
-// });
-
-export const GameRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/game",
+export const Route = createFileRoute("/game")({
   component: Game,
-  // validateSearch: (search) => true
 });

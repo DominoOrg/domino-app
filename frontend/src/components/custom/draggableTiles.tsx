@@ -1,8 +1,8 @@
-import { Tile as TileType } from "@/utils/types/game_state";
+import { Tile as TileType, Option } from "@/game/game_state";
 import Tile from "./tile/tile";
 
 interface RemainingTilesProps {
-  tiles: TileType[]
+  tiles: Option<TileType>[]
   n: number
 }
 
@@ -12,7 +12,7 @@ const DraggableTiles: React.FC<RemainingTilesProps> = ({
 }) => {
   
   return (
-    <div className="flex justify-center items-center w-full h-36 overflow-hidden">
+    <div className="flex justify-center items-center w-full h-36">
       <div className={
         "flex justify-around h-20 mx-auto " +
         "w-5/6 md:w-3/4 lg:w-1/2"

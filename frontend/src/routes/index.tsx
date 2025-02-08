@@ -1,13 +1,7 @@
-"use client";
-import HomeForm from "@/components/custom/homeForm";
-import { createRoute } from "@tanstack/react-router";
-import { rootRoute } from "./__root";
+import HomeForm from '@/components/custom/homeForm'
+import { createFileRoute } from '@tanstack/react-router'
 
-export const HomeRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/",
-  component: Home,
-});
+export const Route = createFileRoute('/')({ component: Home })
 
 function Home() {
   return (
@@ -18,5 +12,5 @@ function Home() {
         <HomeForm />
       </div>
     </div>
-  );
+  )
 }

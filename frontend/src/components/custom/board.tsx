@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { computeSpiral } from "../../utils/spiral";
-import { Tile, Option } from "@/utils/types/game_state";
+import { Tile, Option } from "@/game/game_state";
 
 interface BoardProps {
   // loading: boolean,

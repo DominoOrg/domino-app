@@ -1,4 +1,4 @@
-import { Tile } from "@/utils/types/game_state";
+import { Tile } from "@/game/game_state";
 import { useQuery } from "@tanstack/react-query";
 
 export type Puzzle = {

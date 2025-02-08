@@ -1,4 +1,4 @@
-import { InvalidLengthError, UndefinedPuzzleError } from "../errors";
+import { InvalidLengthError, UndefinedPuzzleError } from "../utils/errors";
 import { TileSet } from "./tileset";
 
 export type Option<T> = T | null;
@@ -31,27 +31,39 @@ export class Tile {
 
 export class GameState {
   inBoardTiles: Array<Option<Tile>>;
-  freeTiles: TileSet;
+  insertedTiles: Array<[Tile, number]>;
+  freeTiles: Array<Option<Tile>>;
   tileset: TileSet;
 
-  constructor(puzzle: Array<Option<Tile>>) {
-    this.inBoardTiles = puzzle;
+  constructor(puzzle: Array<Option<Tile>>, insertedTiles: Array<[Tile, number]>) 
+  {
     const n = this.getN(puzzle);
     this.tileset = new TileSet(n);
-    const usedTiles: Tile[] = this.inBoardTiles.filter((el) => el != null);
-    const unused: Tile[] = Array.from(this.tileset.iter()).filter((tile) => {
-      const flipped_tile: Tile = tile.flip();
-      return !usedTiles.includes(tile) && !usedTiles.includes(flipped_tile);
+    this.insertedTiles = insertedTiles;
+    this.inBoardTiles = puzzle;
+    this.insertedTiles.forEach((inserted: [Tile, number]) => {
+      const [tile, index] = inserted;
+      this.moveTile(tile, index);
     });
-    this.freeTiles = new TileSet(unused);
+    console.log(this);
+    const usedTiles: Tile[] = this.inBoardTiles.filter((el) => el != null);
+    this.freeTiles = Array.from(this.tileset.iter()).filter((tile) => {
+      const flipped_tile: Tile = tile.flip();
+      return usedTiles.every((el) => !el.is_equal(tile) && !el.is_equal(flipped_tile));
+    });
   }
 
   moveTile(tile: Tile, at: number) {
+    console.log(tile, at);
     this.inBoardTiles[at] = tile;
     const flipped_tile: Tile = tile.flip();
-    if (this.freeTiles.has(tile) || this.freeTiles.has(flipped_tile)) {
-      this.freeTiles.delete(tile);
-      this.freeTiles.delete(flipped_tile);
+    const tile_index = this.freeTiles.indexOf(tile);
+    const flipped_tile_index = this.freeTiles.indexOf(flipped_tile);
+    if (tile_index != -1) {
+      this.freeTiles.splice(tile_index, 1, null);
+    }
+    if (flipped_tile_index != -1) {
+      this.freeTiles.splice(flipped_tile_index, 1, null);
     }
   }
 
