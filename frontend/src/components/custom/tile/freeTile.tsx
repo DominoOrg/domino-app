@@ -1,4 +1,4 @@
-import { Tile } from "@/game/game_state";
+import { Tile } from "@/hooks/game_state/types";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 

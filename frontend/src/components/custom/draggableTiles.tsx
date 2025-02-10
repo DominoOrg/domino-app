@@ -1,16 +1,9 @@
-import { Tile as TileType, Option } from "@/game/game_state";
 import Tile from "./tile/tile";
+import { useGame } from "@/hooks/game_state/hook";
 
-interface RemainingTilesProps {
-  tiles: Option<TileType>[]
-  n: number
-}
+const DraggableTiles = () => {
+  const [state, _] = useGame();
 
-const DraggableTiles: React.FC<RemainingTilesProps> = ({
-  tiles,
-  n
-}) => {
-  
   return (
     <div className="flex justify-center items-center w-full h-36">
       <div className={
@@ -18,13 +11,13 @@ const DraggableTiles: React.FC<RemainingTilesProps> = ({
         "w-5/6 md:w-3/4 lg:w-1/2"
 
       }>
-        {tiles.map((tile, i) => (
+        {state.freeTiles.map((tile, i) => (
           <Tile
             key={i}
             tile={tile}
             index={i}
             gridTransform={undefined}
-            n={Number(n)}
+            n={Number(state.tileset.n)}
             precTile={undefined}
             followingTile={undefined}
           />

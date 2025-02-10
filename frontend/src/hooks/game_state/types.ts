@@ -1,6 +1,6 @@
 export interface GameState {
   inBoardTiles: Array<Option<Tile>>,
-  insertedTiles: Array<[Tile, number]>,
+  insertedTiles: Array<[Option<Tile>, number]>,
   freeTiles: Array<Option<Tile>>,
   tileset: TileSet
 }
@@ -38,19 +38,21 @@ export class TileSet {
     tiles: Array<Tile>;
     n: number;
   
-    constructor(tiles: Array<Tile> | number) {
+    constructor(tiles: Array<Option<Tile>> = [], n: number = 0) {
       this.tiles = [];
-      this.n = 0;
+      this.n = n;
   
-      if (typeof tiles == "number") {
+      if (n != 0) {
         // Constructor for tileset in which we know only n
-        this.n = tiles;
-        const combinationSize: number = Math.pow(Number(this.n) + 1, 2);
+        const combinationSize: number = 
+          this.n % 2 == 0 ?
+            (this.n + 1) * (this.n + 2) :
+            Math.pow(this.n + 1, 2);
         const tileset: Tile[] = new Array(combinationSize)
           .fill(0)
           .map((_el, i) => {
-            const col = i % (Number(this.n) + 1);
             const row = Math.floor(i / (Number(this.n) + 1));
+            const col = i % (Number(this.n) + 1);
             const tile: Tile = new Tile(row, col);
             if (col >= row) {
               if (
@@ -68,15 +70,8 @@ export class TileSet {
           .filter((el) => el != undefined);
           return new TileSet(tileset);
       } else {
-        // Constructor for tileset in which we know only tiles
-        this.n = 0;
-        tiles.forEach((tile) => {
-          const index = this.add(tile);
-          if (index != -1) {
-            const tmp = Math.max(tile.left, tile.right);
-            this.n = Math.max(this.n, tmp);
-          }
-        })
+        // Constructor for tileset in which we know only the number of tiles
+        let tmp = (-3.0 + Math.sqrt(9 + 8 * tiles.length)) / 2.0;
       }
     }
   

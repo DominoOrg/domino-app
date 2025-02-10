@@ -1,14 +1,10 @@
 import clsx from "clsx";
 import { computeSpiral } from "../../utils/spiral";
-import { Tile, Option } from "@/game/game_state";
+import { useGame } from "@/hooks/game_state/hook";
 
-interface BoardProps {
-  // loading: boolean,
-  tiles: Array<Option<Tile>>;
-}
-
-const Board: React.FC<BoardProps> = ({ tiles }) => {
-  const [n, rows, cols, spiral] = computeSpiral(tiles);  
+const Board: React.FC = () => {
+  const [state, _] = useGame();
+  const [n, rows, cols, spiral] = computeSpiral(state.inBoardTiles);  
 
   return (
       <div className={clsx(

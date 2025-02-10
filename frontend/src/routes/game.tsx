@@ -6,7 +6,8 @@ import Tutorial from "@/components/custom/tutorial";
 import { HelpCircle } from "lucide-react";
 import useTutorial from "@/hooks/tutorial/useTutorial";
 import { Tile, Option } from "@/hooks/game_state/types";
-import { useGame } from "@/hooks/game_state/hook";
+import { GameContextProvider } from "@/hooks/game_state/context";
+import { DndContext, MouseSensor, TouchSensor, useSensor, useSensors, pointerWithin } from "@dnd-kit/core";
 
 const Game = () => {
   const { puzzleId }: {
@@ -53,7 +54,16 @@ const Game = () => {
   };
   // let n = getN(data?.tiles);
 
-  const [gameState, moveTile] = useGame(data);
+  // const [gameState, moveTile] = useGame(data);
+  const sensors = useSensors(
+    useSensor(MouseSensor),
+    useSensor(TouchSensor)
+);
+
+  const handleDragEnd = (event: any) => {
+      // Implement drag end logic here
+      console.log("Drag ended", event);
+  };
 
   return (
     <div className="relative w-screen h-screen flex flex-col justify-around items-center overflow-hidden">
@@ -62,13 +72,15 @@ const Game = () => {
         state={state}
         updateProgress={updateProgress}
         closeModal={closeTutorial}/>
-
-        <Board
-          tiles={gameState.inBoardTiles}/>
-        <DraggableTiles
-          tiles={[...gameState.freeTiles]}
-          n={gameState.tileset.n}/>
-            
+        <GameContextProvider puzzle={data.tiles}>
+          <DndContext
+                sensors={sensors}
+                collisionDetection={pointerWithin}
+                onDragEnd={handleDragEnd}>
+          <Board/>
+          <DraggableTiles/>
+          </DndContext>
+        </GameContextProvider>            
       <div className="w-screen flex justify-end px-6">
         <HelpCircle onClick={openTutorial}/>
       </div>

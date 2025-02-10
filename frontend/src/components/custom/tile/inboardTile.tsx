@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { GridTransform } from "./tile";
-import { Tile, Option } from "@/game/game_state";
+import { Tile, Option } from "@/hooks/game_state/types";
 import { useDroppable } from "@dnd-kit/core";
 
 type InBoardProps = {
