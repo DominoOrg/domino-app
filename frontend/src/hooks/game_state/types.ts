@@ -1,4 +1,38 @@
-import { Tile } from "./game_state";
+export interface GameState {
+  inBoardTiles: Array<Option<Tile>>,
+  insertedTiles: Array<[Tile, number]>,
+  freeTiles: Array<Option<Tile>>,
+  tileset: TileSet
+}
+
+export type Option<T> = T | null;
+
+export class Tile {
+  left: number;
+  right: number;
+
+  constructor(left: number, right: number) {
+    this.left = left;
+    this.right = right;
+  }
+
+  static from(tile: [number, number]) {
+    return new Tile(tile[0], tile[1]);
+  }
+
+  into(): [number, number] {
+    return [this.left, this.right];
+  }
+  flip() {
+    return new Tile(this.right, this.left);
+  }
+
+  is_equal(tile: Tile) {
+    return (this.left == tile.left && this.right == tile.right) ||
+      (this.left == tile.right && this.right == tile.left);
+  }
+}
+
 
 export class TileSet {
     tiles: Array<Tile>;

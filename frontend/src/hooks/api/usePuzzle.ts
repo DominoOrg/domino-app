@@ -6,7 +6,7 @@ export type Puzzle = {
   tiles: Array<[number, number] | null>;
 }
 
-export function useGetPuzzle(id: string) {
+export function usePuzzle(id: string) {
   return useQuery({
     queryKey: ["get_puzzle"],
     queryFn: async (): Promise<Puzzle> => {

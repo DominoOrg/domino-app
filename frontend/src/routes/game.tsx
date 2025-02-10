@@ -5,20 +5,14 @@ import Header from "@/components/custom/header";
 import Tutorial from "@/components/custom/tutorial";
 import { HelpCircle } from "lucide-react";
 import useTutorial from "@/hooks/tutorial/useTutorial";
-import { useReducer } from "react";
-import { DndContext, DragEndEvent, MouseSensor, PointerSensor, pointerWithin, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
-import { GameState } from "@/game/game_state";
-import { Tile, Option } from "@/game/game_state";
-// import { z } from 'zod';
+import { Tile, Option } from "@/hooks/game_state/types";
+import { useGame } from "@/hooks/game_state/hook";
 
 const Game = () => {
   const { puzzleId }: {
     puzzleId: string
   } = Route.useSearch();
-  const sensors = useSensors(
-    useSensor(MouseSensor),
-    useSensor(TouchSensor),
-  );
+
   const [ state, updateProgress, closeTutorial, openTutorial ] = useTutorial();
   // const { data, error, isPending } = useGetPuzzle(puzzleId);
 
@@ -59,43 +53,22 @@ const Game = () => {
   };
   // let n = getN(data?.tiles);
 
-  type Action = 
-    { type: "MOVE_TILE", payload: { tile: Tile, at: number } };
-
-  const reducer = (state: GameState, action: Action) => {
-    switch (action.type) {
-      case "MOVE_TILE":
-        state.moveTile(action.payload.tile, action.payload.at);
-        return new GameState(state.inBoardTiles, [...state.insertedTiles, [action.payload.tile, action.payload.at]]);
-    }
-  }
-
-  const [gameState, dispatch] = useReducer(reducer, new GameState(data.tiles, []));
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { over, active } = event;
-
-    if (over && active && over.id !== active.id) {
-      const tile: Option<Tile> | undefined= gameState.freeTiles.at(Number(active.id));
-      if (!tile) return;
-      dispatch({
-        type: "MOVE_TILE",
-        payload: {
-          tile,
-          at: Number(over.id)
-        }
-      });
-    }
-  }
+  const [gameState, moveTile] = useGame(data);
 
   return (
     <div className="relative w-screen h-screen flex flex-col justify-around items-center overflow-hidden">
       <Header />
-      <Tutorial state={state} updateProgress={updateProgress} closeModal={closeTutorial}/>
-      <DndContext sensors={sensors} collisionDetection={pointerWithin} onDragEnd={handleDragEnd}>
-        <Board tiles={gameState.inBoardTiles}/>
-        <DraggableTiles tiles={[...gameState.freeTiles]} n={gameState.tileset.n}/>
-      </DndContext>
+      <Tutorial
+        state={state}
+        updateProgress={updateProgress}
+        closeModal={closeTutorial}/>
+
+        <Board
+          tiles={gameState.inBoardTiles}/>
+        <DraggableTiles
+          tiles={[...gameState.freeTiles]}
+          n={gameState.tileset.n}/>
+            
       <div className="w-screen flex justify-end px-6">
         <HelpCircle onClick={openTutorial}/>
       </div>
