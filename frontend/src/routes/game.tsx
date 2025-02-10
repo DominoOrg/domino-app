@@ -6,7 +6,7 @@ import Tutorial from "@/components/custom/tutorial";
 import { HelpCircle } from "lucide-react";
 import useTutorial from "@/hooks/tutorial/useTutorial";
 import { useReducer } from "react";
-import { DndContext, DragEndEvent } from "@dnd-kit/core";
+import { DndContext, DragEndEvent, MouseSensor, PointerSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { GameState } from "@/game/game_state";
 import { Tile, Option } from "@/game/game_state";
 // import { z } from 'zod';
@@ -15,6 +15,10 @@ const Game = () => {
   const { puzzleId }: {
     puzzleId: string
   } = Route.useSearch();
+  const sensors = useSensors(
+    useSensor(MouseSensor),
+    useSensor(TouchSensor),
+  );
   const [ state, updateProgress, closeTutorial, openTutorial ] = useTutorial();
   // const { data, error, isPending } = useGetPuzzle(puzzleId);
 
@@ -88,7 +92,7 @@ const Game = () => {
     <div className="relative w-screen h-screen flex flex-col justify-around items-center overflow-hidden">
       <Header />
       <Tutorial state={state} updateProgress={updateProgress} closeModal={closeTutorial}/>
-      <DndContext onDragEnd={handleDragEnd}>
+      <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
         <Board tiles={gameState.inBoardTiles}/>
         <DraggableTiles tiles={[...gameState.freeTiles]} n={gameState.tileset.n}/>
       </DndContext>
