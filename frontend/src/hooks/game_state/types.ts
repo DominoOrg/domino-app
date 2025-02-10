@@ -42,37 +42,40 @@ export class TileSet {
       this.tiles = [];
       this.n = n;
   
-      if (n != 0) {
-        // Constructor for tileset in which we know only n
-        const combinationSize: number = 
-          this.n % 2 == 0 ?
-            (this.n + 1) * (this.n + 2) :
-            Math.pow(this.n + 1, 2);
-        const tileset: Tile[] = new Array(combinationSize)
-          .fill(0)
-          .map((_el, i) => {
-            const row = Math.floor(i / (Number(this.n) + 1));
-            const col = i % (Number(this.n) + 1);
-            const tile: Tile = new Tile(row, col);
-            if (col >= row) {
-              if (
-                Number(this.n) % 2 != 0 &&
-                row < Math.floor((Number(this.n) + 1) / 2) &&
-                col == Math.floor((Number(this.n) + 1) / 2) + row
-              ) {
-                return undefined;
-              }
-              return tile;
-            } else {
+      if (n == 0) {
+        // Constructor for tileset in which we know only the number of tiles
+        const n = get_n(tiles);
+        if (n == 0) {
+          throw new Error("Invalid number of tiles");
+        }
+        this.n = n;
+      }
+
+      const combinationSize: number = 
+        this.n % 2 == 0 ?
+        (this.n + 1) * (this.n + 2) :
+        Math.pow(this.n + 1, 2);
+      const tileset: Tile[] = new Array(combinationSize)
+        .fill(0)
+        .map((_el, i) => {
+          const row = Math.floor(i / (Number(this.n) + 1));
+          const col = i % (Number(this.n) + 1);
+          const tile: Tile = new Tile(row, col);
+          if (col >= row) {
+            if (
+              Number(this.n) % 2 != 0 &&
+              row < Math.floor((Number(this.n) + 1) / 2) &&
+              col == Math.floor((Number(this.n) + 1) / 2) + row
+            ) {
               return undefined;
             }
-          })
-          .filter((el) => el != undefined);
-          return new TileSet(tileset);
-      } else {
-        // Constructor for tileset in which we know only the number of tiles
-        let tmp = (-3.0 + Math.sqrt(9 + 8 * tiles.length)) / 2.0;
-      }
+            return tile;
+          } else {
+            return undefined;
+          }
+        })
+        .filter((el) => el != undefined);
+      this.tiles = tileset;
     }
   
     at(position: number): Tile {
@@ -112,3 +115,24 @@ export class TileSet {
     }
   }
   
+
+function get_n(puzzle: Array<Option<Tile>>): number {
+  let n = 0;
+  let tmp = (-3.0 + Math.sqrt(1.0 + 8.0 * puzzle.length)) / 2.0;
+  if (tmp - Math.floor(tmp) == 0) {
+    n = tmp;
+  }
+  tmp = (-1.0 + Math.sqrt(2.0 * puzzle.length));
+  if (tmp - Math.floor(tmp) == 0) {
+    n = tmp;
+  }
+  tmp = (-1.0 + Math.sqrt(1.0 + 4.0 * puzzle.length)) / 2.0;
+  if (tmp - Math.floor(tmp) == 0) {
+    n = tmp;
+  }
+  tmp = Math.sqrt(puzzle.length);
+  if (tmp - Math.floor(tmp) == 0) {
+    n = tmp;
+  }
+  return n;
+}

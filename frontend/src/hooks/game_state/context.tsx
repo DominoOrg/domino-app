@@ -17,11 +17,16 @@ type Action = {
 export const GameContext = React.createContext<GameContextInteface | undefined>(undefined);
 
 export const GameContextProvider = ({ puzzle, children }: { puzzle: Array<Option<Tile>>, children: ReactNode }) => {
+    const tileset = new TileSet(puzzle);
+    const freeTiles = tileset.iter()
+        .filter(tile =>
+            !puzzle.some(t => t && t.is_equal(tile))
+        );
     const initialState: GameState = {
         inBoardTiles: puzzle,
         insertedTiles: [],
-        freeTiles: [],
-        tileset: new TileSet(puzzle) // Ensure TileSet can be initialized with an empty array
+        freeTiles,
+        tileset  // Ensure TileSet can be initialized with an empty array
     };
     const reducer = (prevState: GameContextInteface, action: Action): GameContextInteface => {
         switch (action.type) {
