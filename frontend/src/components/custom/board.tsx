@@ -3,7 +3,7 @@ import { computeSpiral } from "../../utils/spiral";
 import { useGame } from "@/hooks/game_state/useGame";
 
 const Board: React.FC = () => {
-  const {state: {inBoardTiles}} = useGame();
+  const {inBoardTiles} = useGame();
   const [n, rows, cols, spiral] = computeSpiral(inBoardTiles);  
   return (
       <div className={clsx(

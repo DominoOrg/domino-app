@@ -14,12 +14,7 @@ export interface GameState {
     }>
 }
 
-export interface GameContextInteface {
-    state: GameState;
-    moveTile?: (from: number, to: number) => void;
-}
-
-export const GameContext = React.createContext<GameContextInteface | undefined>(undefined);
+export const GameContext = React.createContext<GameState | undefined>(undefined);
 
 export const GameContextProvider = ({ puzzle, children }: { puzzle: Array<Option<Tile>>, children: ReactNode }) => {
     const tileset = new TileSet(puzzle);
@@ -35,7 +30,7 @@ export const GameContextProvider = ({ puzzle, children }: { puzzle: Array<Option
         isDragging: null
     };
 
-    const [{state}, dispatch] = useReducer(reducer, {state: initialState, moveTile: undefined});
+    const [state, dispatch] = useReducer(reducer, initialState);
 
     const moveTile = (from: number, to: number) => {
         dispatch({ type: "MOVE_TILE", payload: { from, to } });
@@ -43,7 +38,7 @@ export const GameContextProvider = ({ puzzle, children }: { puzzle: Array<Option
     
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
-        if (active.id && over?.id &&
+        if (over?.id &&
             (state.insertedPositions.includes(over.id as number) ||
             state.inBoardTiles[over.id as number] === null)
         ) {
@@ -53,7 +48,7 @@ export const GameContextProvider = ({ puzzle, children }: { puzzle: Array<Option
     }
     
     return (
-        <GameContext.Provider value={ {state, moveTile} }>
+        <GameContext.Provider value={ state }>
             <DndGameContext onDragEnd={handleDragEnd}>
                 {children}
             </DndGameContext>
@@ -69,7 +64,7 @@ type Action = {
     }
 };
 
-const reducer = (prevState: GameContextInteface, action: Action): GameContextInteface => {
+const reducer = (prevState: GameState, action: Action): GameState => {
     switch (action.type) {
         case "MOVE_TILE":
             const { from, to }: { from: number, to: number } = action.payload;
@@ -77,19 +72,20 @@ const reducer = (prevState: GameContextInteface, action: Action): GameContextInt
                 inBoardTiles: Array<Option<Tile>>,
                 freeTiles: Array<Option<Tile>>,
                 insertedPositions: Array<number>
-            } = prevState.state;
+            } = prevState;
             const newInBoardTiles: Array<Option<Tile>> = [...inBoardTiles];
             const newFreeTiles: Array<Option<Tile>> = [...freeTiles];
-            const tmp = newFreeTiles[from];
+            let tmp = newFreeTiles[from];
             newFreeTiles[from] = newInBoardTiles[from];
             newInBoardTiles[to] = tmp;
             const newInsertedPositions: Array<number> = [...insertedPositions, to];
             const newGameState = {
-                ...prevState.state,
+                ...prevState,
                 inBoardTiles: newInBoardTiles,
                 freeTiles: newFreeTiles,
                 insertedPositions: newInsertedPositions
             };
-            return { state: newGameState };
+            console.log(prevState, newGameState);
+            return newGameState;
     }
 };
