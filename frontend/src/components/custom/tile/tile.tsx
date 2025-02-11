@@ -48,7 +48,7 @@ const Tile: React.FC<{
   } else if (isFree) {
     element = (
       <FreeTile
-        tile={tile!}
+        tile={tile}
         index={index}
         imgClasses={imgClasses}
         n={n}

@@ -3,7 +3,8 @@ import { useGame } from "@/hooks/game_state/useGame";
 
 const DraggableTiles = () => {
   const {state} = useGame();
-
+  console.log(state.freeTiles);
+  
   return (
     <div className="flex justify-center items-center w-full h-36">
       <div className={

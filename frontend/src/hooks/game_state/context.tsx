@@ -85,10 +85,10 @@ const reducer = (prevState: GameContextInteface, action: Action): GameContextInt
                 insertedPositions: Array<number>
             } = prevState.state;
             const newInBoardTiles: Array<Option<Tile>> = [...inBoardTiles];
-            const tmp = newInBoardTiles[to];
-            newInBoardTiles[to] = freeTiles[from];
+            const newFreeTiles: Array<Option<Tile>> = [...freeTiles];
+            const tmp = newFreeTiles.splice(from, 1, newInBoardTiles[to])[0];
+            newInBoardTiles[to] = tmp;
             const newInsertedPositions: Array<number> = [...insertedPositions, to];
-            const newFreeTiles: Array<Option<Tile>> = [...freeTiles, tmp];
             const newGameState = {
                 ...prevState.state,
                 inBoardTiles: newInBoardTiles,

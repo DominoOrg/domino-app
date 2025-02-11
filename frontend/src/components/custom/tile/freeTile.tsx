@@ -1,4 +1,3 @@
-import { DndGameOverlay } from "@/hooks/dragdrop/dndGameOverlay";
 import { Tile, Option } from "@/hooks/game_state/types";
 import { useFreeTile } from "@/hooks/game_state/useFreeTile";
 
@@ -28,7 +27,6 @@ const FreeTile: React.FC<{
   const { style, attributes, listeners, setNodeRef } = useFreeTile(tile, index);
   
   return (
-    // <DndGameOverlay overlayCondition={isDragging}>
       <img
         ref={setNodeRef}
         style={style}
@@ -37,16 +35,15 @@ const FreeTile: React.FC<{
         key={index}
         src={
           tile?
-          "tile" +
+          ("tile" +
           (tile.left > tile.right
             ? tile.left + "" + tile.right
             : tile.right + "" + tile.left) +
-          ".png"
+          ".png")
           : "missing_tile.png"
         }
         className={imgClasses}
       />
-    // </DndGameOverlay>
   );
 };
 
