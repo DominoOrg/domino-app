@@ -15,7 +15,7 @@ const Tutorial = () => {
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-            {state.progress > 0 && state.gif}
+            {state.progress > 0 && <img src={state.gif} alt="tutorial gif"/>}
         </div>
         <DialogFooter>
           {state.progress < 2 && <Button variant="outline" onClick={closeModal}>Close</Button>}

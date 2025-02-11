@@ -32,7 +32,7 @@ const InBoardTile: React.FC<InBoardProps> = (props) => {
     const newRotation = (parseInt(actualRotation) + 180) % 360;
     img.className = img.className.replace("rotate-" + actualRotation, "rotate-" + newRotation);
   }
-  const {setNodeRef} =useInBoardTile(props.index);
+  const {setNodeRef} = useInBoardTile(props.index);
 
   return (
     <>

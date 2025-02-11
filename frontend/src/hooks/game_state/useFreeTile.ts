@@ -7,12 +7,13 @@ export const useFreeTile = (tile: Option<Tile>, index: number) => {
     const style = {
       transform: CSS.Translate.toString(transform),
     }
-    useDraggable({
+    const {isDragging} = useDraggable({
       id: index.toString(),
       data: { type: "tile", tile: tile },
     });
 
     return {
+      isDragging,
       style,
       attributes,
       listeners,

@@ -5,7 +5,7 @@ export type TutorialState = {
   progress: number;
   title: string;
   description: string;
-  gif: string | null; // Changed to string for URL or null
+  gif?: string; // Changed to string for URL or null
   cta: string;
 };
 
@@ -18,7 +18,7 @@ const initialState: TutorialState = {
   progress: 0,
   title: "Welcome",
   description: "This is a tutorial on how to play",
-  gif: null,
+  gif: undefined,
   cta: "Continue"
 };
 
@@ -27,7 +27,7 @@ const steps = [
     progress: 0,
     title: "Welcome",
     description: "This is a tutorial on how to play.",
-    gif: null,
+    gif: undefined,
     cta: "Continue"
   },
   {

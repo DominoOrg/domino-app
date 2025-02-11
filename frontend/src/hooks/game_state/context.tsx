@@ -1,6 +1,6 @@
 import React, { ReactNode, useReducer } from "react";
 import { Tile, Option, TileSet } from "./types";
-import { DndOutlet } from "@/components/custom/dndOutlet";
+import { DndGameContext } from "@/hooks/dragdrop/dndGameContext";
 
 export interface GameState {
     inBoardTiles: Array<Option<Tile>>,
@@ -15,7 +15,7 @@ export interface GameState {
 
 export interface GameContextInteface {
     state: GameState;
-    moveTile: (tile: Option<Tile>, at: number) => void;
+    moveTile?: (tile: Option<Tile>, at: number) => void;
 }
 
 export const GameContext = React.createContext<GameContextInteface | undefined>(undefined);
@@ -33,19 +33,18 @@ export const GameContextProvider = ({ puzzle, children }: { puzzle: Array<Option
         tileset,  // Ensure TileSet can be initialized with an empty array
         isDragging: null
     };
-    
+
+    const [{state}, dispatch] = useReducer(reducer, {state: initialState, moveTile: undefined});
+
     const moveTile = (tile: Option<Tile>, at: number) => {
         dispatch({ type: "MOVE_TILE", payload: { tile, at, moveTile } });
     };
-
-    const [{state}, dispatch] = useReducer(reducer, {state: initialState, moveTile});
-
-
+    
     return (
         <GameContext.Provider value={ {state, moveTile} }>
-            <DndOutlet isDragging={state.isDragging} n={state.tileset.n}>
+            <DndGameContext>
                 {children}
-            </DndOutlet>
+            </DndGameContext>
         </GameContext.Provider>
     );
 };

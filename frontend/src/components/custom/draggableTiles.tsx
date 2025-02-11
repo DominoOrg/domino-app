@@ -9,7 +9,6 @@ const DraggableTiles = () => {
       <div className={
         "flex justify-around h-20 mx-auto " +
         "w-5/6 md:w-3/4 lg:w-1/2"
-
       }>
         {state.freeTiles.map((tile, i) => (
           <Tile
