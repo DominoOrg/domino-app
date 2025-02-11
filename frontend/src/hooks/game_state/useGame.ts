@@ -1,7 +1,7 @@
 import { useContext } from "react";
-import { GameContext, GameContextInteface } from "./context";
+import { GameContext, GameState } from "./context";
 
-export const useGame = (): GameContextInteface => {
+export const useGame = (): GameState => {
     const gameContext = useContext(GameContext);
     if (!gameContext) {
         throw new Error("useGame must be used within a GameProvider");

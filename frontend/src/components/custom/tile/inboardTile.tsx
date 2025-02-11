@@ -1,6 +1,7 @@
 import clsx from "clsx";
 import { Tile, Option } from "@/hooks/game_state/types";
 import { useInBoardTile } from "@/hooks/game_state/useInBoardTile";
+import { useGame } from "@/hooks/game_state/useGame";
 
 export type GridTransform = {
   current_row: number;
@@ -39,8 +40,9 @@ const InBoardTile: React.FC<InBoardProps> = (props) => {
     const newRotation = (parseInt(actualRotation) + 180) % 360;
     img.className = img.className.replace("rotate-" + actualRotation, "rotate-" + newRotation);
   }
+  const {insertedPositions} = useGame();
   const {setNodeRef} = useInBoardTile(props.index);
-
+  console.log(insertedPositions, index);
   return (
     <>
       {tile && (
@@ -55,7 +57,7 @@ const InBoardTile: React.FC<InBoardProps> = (props) => {
               ".png"
             }
             className={imgClasses}
-            onPointerDown={rotateTile}
+            onPointerDown={(insertedPositions.includes(index))? rotateTile: ()=>{}}
           />
       )}
       {!tile && (
