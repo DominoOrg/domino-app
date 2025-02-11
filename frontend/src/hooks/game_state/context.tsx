@@ -75,7 +75,7 @@ const reducer = (prevState: GameState, action: Action): GameState => {
             } = prevState;
             const newInBoardTiles: Array<Option<Tile>> = [...inBoardTiles];
             const newFreeTiles: Array<Option<Tile>> = [...freeTiles];
-            let tmp = newFreeTiles[from];
+            const tmp = newFreeTiles[from];
             newFreeTiles[from] = newInBoardTiles[to];
             newInBoardTiles[to] = tmp;
             const newInsertedPositions: Array<number> = [...insertedPositions, to];
