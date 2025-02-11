@@ -66,7 +66,7 @@ export const computeSpiral = (
         preceidingTile={tiles[i - 1]}
         tile={tile}
         followingTile={tiles[i + 1]}
-        index={spiral.length}
+        index={i}
         gridTransform={{
           current_row,
           current_col,
