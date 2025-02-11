@@ -8,10 +8,6 @@ export interface GameState {
     insertedPositions: Array<number>,
     freeTiles: Array<Option<Tile>>,
     tileset: TileSet,
-    isDragging: Option<{
-        tile: Option<Tile>,
-        id: number
-    }>
 }
 
 export const GameContext = React.createContext<GameState | undefined>(undefined);
@@ -27,7 +23,6 @@ export const GameContextProvider = ({ puzzle, children }: { puzzle: Array<Option
         insertedPositions: [],
         freeTiles,
         tileset,  // Ensure TileSet can be initialized with an empty array
-        isDragging: null
     };
 
     const [state, dispatch] = useReducer(reducer, initialState);
@@ -38,6 +33,7 @@ export const GameContextProvider = ({ puzzle, children }: { puzzle: Array<Option
     
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
+        console.log(active, over);
         if (over?.id &&
             (state.insertedPositions.includes(over.id as number) ||
             state.inBoardTiles[over.id as number] === null)
