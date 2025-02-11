@@ -1,8 +1,8 @@
 import Tile from "./tile/tile";
-import { useGame } from "@/hooks/game_state/hook";
+import { useGame } from "@/hooks/game_state/useGame";
 
 const DraggableTiles = () => {
-  const [state, _] = useGame();
+  const {state} = useGame();
 
   return (
     <div className="flex justify-center items-center w-full h-36">

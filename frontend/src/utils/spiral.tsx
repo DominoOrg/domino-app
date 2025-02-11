@@ -1,5 +1,5 @@
 import Tile from "@/components/custom/tile/tile";
-import { Tile as TileType, Option } from "@/game/game_state";
+import { Tile as TileType, Option } from "@/hooks/game_state";
 
 const computeN = (tiles: Array<Option<TileType>>) => {
   const l = tiles.length;

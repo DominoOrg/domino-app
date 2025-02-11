@@ -1,15 +1,12 @@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
-import { TutorialState } from "@/hooks/tutorial/useTutorial";
+import { HelpCircle } from "lucide-react";
+import useTutorial from "@/hooks/tutorial/useTutorial";
 
-type TutorialProps = {
-  state: TutorialState,
-  updateProgress: () => void,
-  closeModal: () => void
-}
+const Tutorial = () => {
+  const [state, updateProgress, closeModal, openTutorial] = useTutorial();
 
-const Tutorial: React.FC<TutorialProps> = ({ state, updateProgress, closeModal }) => {
-  return (<Dialog open={state.open}>
+  return (<><Dialog open={state.open}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{state.title}</DialogTitle>
@@ -25,7 +22,12 @@ const Tutorial: React.FC<TutorialProps> = ({ state, updateProgress, closeModal }
           <Button type="submit" onClick={updateProgress}>{state.cta}</Button>
         </DialogFooter>
       </DialogContent>
-    </Dialog>);
+    </Dialog>
+    <div className="w-screen flex justify-end px-6">
+      <HelpCircle onClick={openTutorial}/>
+    </div>
+
+    </>);
 }
 
 export default Tutorial;

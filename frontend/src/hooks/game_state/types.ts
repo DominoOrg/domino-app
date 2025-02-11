@@ -1,10 +1,3 @@
-export interface GameState {
-  inBoardTiles: Array<Option<Tile>>,
-  insertedTiles: Array<[Option<Tile>, number]>,
-  freeTiles: Array<Option<Tile>>,
-  tileset: TileSet
-}
-
 export type Option<T> = T | null;
 
 export class Tile {
@@ -44,7 +37,7 @@ export class TileSet {
   
       if (n == 0) {
         // Constructor for tileset in which we know only the number of tiles
-        const n = get_n(tiles);
+        const n = getN(tiles);
         if (n == 0) {
           throw new Error("Invalid number of tiles");
         }
@@ -116,7 +109,7 @@ export class TileSet {
   }
   
 
-function get_n(puzzle: Array<Option<Tile>>): number {
+function getN(puzzle: Array<Option<Tile>>): number {
   let n = 0;
   let tmp = (-3.0 + Math.sqrt(1.0 + 8.0 * puzzle.length)) / 2.0;
   if (tmp - Math.floor(tmp) == 0) {
