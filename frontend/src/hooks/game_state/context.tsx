@@ -5,7 +5,7 @@ import { DragEndEvent } from "@dnd-kit/core";
 
 export interface GameState {
     inBoardTiles: Array<Option<Tile>>,
-    insertedTiles: Array<[Option<Tile>, number]>,
+    insertedPositions: Array<number>,
     freeTiles: Array<Option<Tile>>,
     tileset: TileSet,
     isDragging: Option<{
@@ -16,7 +16,7 @@ export interface GameState {
 
 export interface GameContextInteface {
     state: GameState;
-    moveTile?: (tile: Option<Tile>, at: number) => void;
+    moveTile?: (from: number, to: number) => void;
 }
 
 export const GameContext = React.createContext<GameContextInteface | undefined>(undefined);
@@ -29,7 +29,7 @@ export const GameContextProvider = ({ puzzle, children }: { puzzle: Array<Option
         );
     const initialState: GameState = {
         inBoardTiles: puzzle,
-        insertedTiles: [],
+        insertedPositions: [],
         freeTiles,
         tileset,  // Ensure TileSet can be initialized with an empty array
         isDragging: null
@@ -37,15 +37,14 @@ export const GameContextProvider = ({ puzzle, children }: { puzzle: Array<Option
 
     const [{state}, dispatch] = useReducer(reducer, {state: initialState, moveTile: undefined});
 
-    const moveTile = (tile: Option<Tile>, at: number) => {
-        dispatch({ type: "MOVE_TILE", payload: { tile, at } });
+    const moveTile = (from: number, to: number) => {
+        dispatch({ type: "MOVE_TILE", payload: { from, to } });
     };
     
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
         if (active.id && over && over.id ) {
-            moveTile(state.freeTiles[active.id as number], over.id as number);
-            moveTile(null, active.id as number);
+            moveTile(active.id as number, over.id as number);
         }
     }
     
@@ -61,8 +60,8 @@ export const GameContextProvider = ({ puzzle, children }: { puzzle: Array<Option
 type Action = {
     type: "MOVE_TILE",
     payload: {
-        tile: Option<Tile>,
-        at: number,
+        from: number,
+        to: number,
     }
 } | {
     type: "UPDATE_DRAGGING",
@@ -79,22 +78,22 @@ const reducer = (prevState: GameContextInteface, action: Action): GameContextInt
             newState.state.isDragging = action.payload;
             return newState;
         case "MOVE_TILE":
-            const { tile, at }: { tile: Option<Tile>, at: number } = action.payload;
-            const { inBoardTiles, freeTiles, insertedTiles }: {
+            const { from, to }: { from: number, to: number } = action.payload;
+            const { inBoardTiles, freeTiles, insertedPositions }: {
                 inBoardTiles: Array<Option<Tile>>,
                 freeTiles: Array<Option<Tile>>,
-                insertedTiles: Array<[Option<Tile>, number]>
+                insertedPositions: Array<number>
             } = prevState.state;
             const newInBoardTiles: Array<Option<Tile>> = [...inBoardTiles];
-            const tmp = newInBoardTiles[at];
-            newInBoardTiles[at] = tile;
-            const newInsertedTiles: Array<[Option<Tile>, number]> = [...insertedTiles, [tile, at]];
+            const tmp = newInBoardTiles[to];
+            newInBoardTiles[to] = freeTiles[from];
+            const newInsertedPositions: Array<number> = [...insertedPositions, to];
             const newFreeTiles: Array<Option<Tile>> = [...freeTiles, tmp];
             const newGameState = {
                 ...prevState.state,
                 inBoardTiles: newInBoardTiles,
                 freeTiles: newFreeTiles,
-                insertedTiles: newInsertedTiles
+                insertedPositions: newInsertedPositions
             };
             return { state: newGameState };
     }
