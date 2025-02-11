@@ -1,6 +1,7 @@
 import React, { ReactNode, useReducer } from "react";
 import { Tile, Option, TileSet } from "./types";
 import { DndGameContext } from "@/hooks/dragdrop/dndGameContext";
+import { DragEndEvent } from "@dnd-kit/core";
 
 export interface GameState {
     inBoardTiles: Array<Option<Tile>>,
@@ -40,9 +41,17 @@ export const GameContextProvider = ({ puzzle, children }: { puzzle: Array<Option
         dispatch({ type: "MOVE_TILE", payload: { tile, at, moveTile } });
     };
     
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+        if (active.id && over && over.id ) {
+            moveTile(state.freeTiles[active.id as number], over.id as number);
+            moveTile(null, active.id as number);
+        }
+    }
+    
     return (
         <GameContext.Provider value={ {state, moveTile} }>
-            <DndGameContext>
+            <DndGameContext onDragEnd={handleDragEnd}>
                 {children}
             </DndGameContext>
         </GameContext.Provider>

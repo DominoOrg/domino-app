@@ -1,21 +1,21 @@
 import { DndContext, MouseSensor, TouchSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core";
-import { PropsWithChildren } from "react";
 
-export const DndGameContext: React.FC<PropsWithChildren> = ({ children }) => {
+interface PropsWithDragEndEvent {
+    onDragEnd: (event: DragEndEvent) => void,
+    children: React.ReactNode
+}
+
+
+export const DndGameContext: React.FC<PropsWithDragEndEvent> = ({ children, onDragEnd }) => {
     const sensors = useSensors(
         useSensor(MouseSensor),
         useSensor(TouchSensor),
     );
-    
-
-    const handleDragEnd = (event: DragEndEvent) => {
-        console.log(event);
-    };
 
     return (
         <DndContext
             sensors={sensors}
-            onDragEnd={handleDragEnd}
+            onDragEnd={onDragEnd}
         >
             {children}
         </DndContext>
