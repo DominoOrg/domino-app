@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { GridTransform } from "./tile";
 import { Tile, Option } from "@/hooks/game_state/types";
-import { useDroppable } from "@dnd-kit/core";
+import { useInBoardTile } from "@/hooks/game_state/useInBoardTile";
 
 type InBoardProps = {
   tile: Option<Tile>;
@@ -32,7 +32,7 @@ const InBoardTile: React.FC<InBoardProps> = (props) => {
     const newRotation = (parseInt(actualRotation) + 180) % 360;
     img.className = img.className.replace("rotate-" + actualRotation, "rotate-" + newRotation);
   }
-  const { setNodeRef } = useDroppable({ id: index.toString() });
+  const {setNodeRef} =useInBoardTile(props.index);
 
   return (
     <>

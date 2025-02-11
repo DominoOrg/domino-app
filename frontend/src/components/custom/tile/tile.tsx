@@ -1,6 +1,6 @@
 import InBoardTile from "./inboardTile";
 import FreeTile from "./freeTile";
-import { Tile as TileType, Option } from "@/game/game_state";
+import { Tile as TileType, Option } from "@/hooks/game_state/types";
 
 export type GridTransform = {
   current_row: number;

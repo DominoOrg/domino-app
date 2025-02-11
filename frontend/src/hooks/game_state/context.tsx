@@ -1,6 +1,6 @@
 import React, { ReactNode, useReducer } from "react";
 import { Tile, Option, TileSet } from "./types";
-import { DndContext, MouseSensor, TouchSensor, useSensor, useSensors, pointerWithin, DragEndEvent, DragOverlay, DragStartEvent } from "@dnd-kit/core";
+import { DndContext, MouseSensor, TouchSensor, useSensor, useSensors, DragEndEvent, DragOverlay, DragStartEvent } from "@dnd-kit/core";
 import FreeTile from "@/components/custom/tile/freeTile";
 
 export interface GameState {
@@ -110,7 +110,6 @@ export const GameContextProvider = ({ puzzle, children }: { puzzle: Array<Option
         <GameContext.Provider value={ state }>
             <DndContext
                 sensors={sensors}
-                collisionDetection={pointerWithin}
                 onDragStart={handleDragStart}
                 onDragEnd={handleDragEnd}>
                 {children}
