@@ -5,7 +5,6 @@ import { useGame } from "@/hooks/game_state/useGame";
 const Board: React.FC = () => {
   const {state: {inBoardTiles}} = useGame();
   const [n, rows, cols, spiral] = computeSpiral(inBoardTiles);  
-
   return (
       <div className={clsx(
           n==3?"h-1/3":"",

@@ -1,4 +1,4 @@
-import Tile from "@/components/custom/tile/tile";
+import InBoardTile from "@/components/custom/tile/inboardTile";
 import { Tile as TileType, Option } from "@/hooks/game_state/types";
 
 const computeN = (tiles: Array<Option<TileType>>) => {
@@ -50,15 +50,22 @@ export const computeSpiral = (
   let index_in_side = 0;
   let rotation_angle = 90;
 
+  // Initialize base classes for the div parent a.k.a. tile classes
+  const tileClasses = "overflow-hidden flex justify-center items-center ";
+  // Initialize base classes for the img contained in the div
+  const imgClasses = "overflow-hidden ";
+
   Array.from(tiles).forEach((tile, i) => {
     // Add the tile with his position in the spiral and his predecessor and successor tile in the spiral
     spiral.push(
-      <Tile
+      <InBoardTile
+        tileClasses={tileClasses}
+        imgClasses={imgClasses}
         n={n}
         key={i}
-        precTile={tiles[i - 1] || undefined}
+        preceidingTile={tiles[i - 1]}
         tile={tile}
-        followingTile={tiles[i + 1] || undefined}
+        followingTile={tiles[i + 1]}
         index={spiral.length}
         gridTransform={{
           current_row,

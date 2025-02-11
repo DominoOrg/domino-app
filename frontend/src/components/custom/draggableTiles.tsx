@@ -1,9 +1,8 @@
-import Tile from "./tile/tile";
+import FreeTile from "./tile/freeTile";
 import { useGame } from "@/hooks/game_state/useGame";
 
 const DraggableTiles = () => {
   const {state} = useGame();
-  console.log(state.freeTiles);
   
   return (
     <div className="flex justify-center items-center w-full h-36">
@@ -12,14 +11,12 @@ const DraggableTiles = () => {
         "w-5/6 md:w-3/4 lg:w-1/2"
       }>
         {state.freeTiles.map((tile, i) => (
-          <Tile
+          <FreeTile
             key={i}
             tile={tile}
             index={i}
-            gridTransform={undefined}
-            n={Number(state.tileset.n)}
-            precTile={undefined}
-            followingTile={undefined}
+            imgClasses={"overflow-hidden "}
+            n={state.tileset.n}
           />
         ))}
       </div>

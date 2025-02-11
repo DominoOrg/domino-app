@@ -43,7 +43,11 @@ export const GameContextProvider = ({ puzzle, children }: { puzzle: Array<Option
     
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
-        if (active.id && over && over.id ) {
+        if (active.id && over?.id &&
+            (state.insertedPositions.includes(over.id as number) ||
+            state.inBoardTiles[over.id as number] === null)
+        ) {
+            console.log(active, over);            
             moveTile(active.id as number, over.id as number);
         }
     }
@@ -63,20 +67,10 @@ type Action = {
         from: number,
         to: number,
     }
-} | {
-    type: "UPDATE_DRAGGING",
-    payload: Option<{
-        tile: Option<Tile>,
-        id: number
-    }>
 };
 
 const reducer = (prevState: GameContextInteface, action: Action): GameContextInteface => {
     switch (action.type) {
-        case "UPDATE_DRAGGING":
-            let newState = { ...prevState };
-            newState.state.isDragging = action.payload;
-            return newState;
         case "MOVE_TILE":
             const { from, to }: { from: number, to: number } = action.payload;
             const { inBoardTiles, freeTiles, insertedPositions }: {
@@ -86,7 +80,8 @@ const reducer = (prevState: GameContextInteface, action: Action): GameContextInt
             } = prevState.state;
             const newInBoardTiles: Array<Option<Tile>> = [...inBoardTiles];
             const newFreeTiles: Array<Option<Tile>> = [...freeTiles];
-            const tmp = newFreeTiles.splice(from, 1, newInBoardTiles[to])[0];
+            const tmp = newFreeTiles[from];
+            newFreeTiles[from] = newInBoardTiles[from];
             newInBoardTiles[to] = tmp;
             const newInsertedPositions: Array<number> = [...insertedPositions, to];
             const newGameState = {

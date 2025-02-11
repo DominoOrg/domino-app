@@ -1,7 +1,14 @@
 import clsx from "clsx";
-import { GridTransform } from "./tile";
 import { Tile, Option } from "@/hooks/game_state/types";
 import { useInBoardTile } from "@/hooks/game_state/useInBoardTile";
+
+export type GridTransform = {
+  current_row: number;
+  current_col: number;
+  row_span: number;
+  col_span: number;
+  rotation: number;
+};
 
 type InBoardProps = {
   tile: Option<Tile>;
@@ -10,8 +17,8 @@ type InBoardProps = {
   imgClasses: string;
   gridTransform: GridTransform;
   n: number;
-  preceidingTile?: Tile;
-  followingTile?: Tile;
+  preceidingTile: Option<Tile>;
+  followingTile: Option<Tile>;
 };
 
 const InBoardTile: React.FC<InBoardProps> = (props) => {
@@ -48,6 +55,7 @@ const InBoardTile: React.FC<InBoardProps> = (props) => {
               ".png"
             }
             className={imgClasses}
+            onPointerDown={rotateTile}
           />
       )}
       {!tile && (
@@ -57,7 +65,6 @@ const InBoardTile: React.FC<InBoardProps> = (props) => {
             key={index}
             src="missing_tile.png"
             className={imgClasses}
-            onPointerDown={rotateTile}
           />
       )}
     </>
