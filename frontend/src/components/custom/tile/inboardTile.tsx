@@ -42,7 +42,6 @@ const InBoardTile: React.FC<InBoardProps> = (props) => {
   }
   const {insertedPositions} = useGame();
   const {setNodeRef} = useInBoardTile(props.index);
-  console.log(insertedPositions, index);
   return (
     <>
       {tile && (
@@ -57,7 +56,7 @@ const InBoardTile: React.FC<InBoardProps> = (props) => {
               ".png"
             }
             className={imgClasses}
-            onPointerDown={(insertedPositions.includes(index))? rotateTile: ()=>{}}
+            onPointerDown={(insertedPositions.includes(index))?rotateTile: ()=>{}}
           />
       )}
       {!tile && (
