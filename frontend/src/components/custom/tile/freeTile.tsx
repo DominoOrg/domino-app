@@ -1,9 +1,9 @@
-import { Tile } from "@/hooks/game_state/types";
+import { Tile, Option } from "@/hooks/game_state/types";
 import { useFreeTile } from "@/hooks/game_state/useFreeTile";
 
 
 const FreeTile: React.FC<{
-  tile: Tile,
+  tile: Option<Tile>,
   index: number,
   imgClasses: string,
   n: number
@@ -34,11 +34,13 @@ const FreeTile: React.FC<{
       {...listeners}
       key={index}
       src={
+        tile?
         "tile" +
         (tile.left > tile.right
           ? tile.left + "" + tile.right
           : tile.right + "" + tile.left) +
         ".png"
+        : "missing_tile.png"
       }
       className={imgClasses}
     />

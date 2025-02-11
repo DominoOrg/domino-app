@@ -1,7 +1,6 @@
 import React, { ReactNode, useReducer } from "react";
 import { Tile, Option, TileSet } from "./types";
-import { DndContext, MouseSensor, TouchSensor, useSensor, useSensors, DragEndEvent, DragOverlay, DragStartEvent } from "@dnd-kit/core";
-import FreeTile from "@/components/custom/tile/freeTile";
+import { DndOutlet } from "@/components/custom/dndOutlet";
 
 export interface GameState {
     inBoardTiles: Array<Option<Tile>>,
@@ -80,52 +79,14 @@ export const GameContextProvider = ({ puzzle, children }: { puzzle: Array<Option
         dispatch({ type: "MOVE_TILE", payload: { tile, at } });
     };
 
-    const [state, dispatch] = useReducer(reducer, {state: initialState, moveTile});
-    const sensors = useSensors(
-        useSensor(MouseSensor),
-        useSensor(TouchSensor)
-    );
-    
-    const handleDragStart = (event: DragStartEvent) => {
-        console.log(event);
-        const {active: {id}} = event;
-        if (id) {
-            dispatch({ type: "UPDATE_DRAGGING", payload: { tile: state.state.inBoardTiles[id as number], id: id as number } });            
-        }
-        console.log(state.state.isDragging);
-    }
+    const [{state}, dispatch] = useReducer(reducer, {state: initialState, moveTile});
 
-    const handleDragEnd = (event: DragEndEvent) => {
-        console.log(event);
-        const {active, over} = event;
-        if (state.state.isDragging) {
-            console.log(active.id, over);
-            dispatch({ type: "UPDATE_DRAGGING", payload: null });
-            moveTile(state.state.isDragging.tile, over?.id as number);
-        }
-        console.log(state.state.isDragging);
-    };
 
     return (
-        <GameContext.Provider value={ state }>
-            <DndContext
-                sensors={sensors}
-                onDragStart={handleDragStart}
-                onDragEnd={handleDragEnd}>
+        <GameContext.Provider value={ {state, moveTile} }>
+            <DndOutlet isDragging={state.isDragging} n={state.tileset.n}>
                 {children}
-                <DragOverlay>
-                    {
-                        state.state.isDragging?
-                        <FreeTile
-                            tile={state.state.inBoardTiles[state.state.isDragging.id]!}
-                            index={state.state.isDragging.id}
-                            imgClasses="h-24"
-                            n={state.state.tileset.n}
-                        />
-                        : null
-                    }
-                </DragOverlay>
-            </DndContext>
+            </DndOutlet>
         </GameContext.Provider>
     );
 };
