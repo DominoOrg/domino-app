@@ -22,9 +22,6 @@ const InBoardTile: React.FC<InBoardProps> = (props) => {
     n: props.n
   });
   const { tile, index } = props;
-  if (!tile) {
-    console.log(index)
-  }
   const rotateTile = (e: React.PointerEvent) => {
     e.preventDefault();
     if (!e.target) return;
