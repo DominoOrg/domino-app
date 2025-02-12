@@ -47,6 +47,7 @@ const InBoardTile: React.FC<InBoardProps> = (props) => {
       {tile && (
           <img
             id={tile.left+""+tile.right}
+            ref={setNodeRef}
             key={index}
             src={
               "tile" +

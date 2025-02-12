@@ -3,7 +3,7 @@ import { Tile, Option } from "./types";
 
 export const useFreeTile = (tile: Option<Tile>, index: number) => {
   const {isDragging, attributes, listeners, setNodeRef, transform} = useDraggable({
-    id: index.toString(),
+    id: Number(index),
     data: { tile: tile },
   });
   const style = transform ? {
