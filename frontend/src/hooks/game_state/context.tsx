@@ -69,10 +69,10 @@ const reducer = (prevState: GameState, action: Action): GameState => {
             } = prevState;
             const newInBoardTiles: Array<Option<Tile>> = [...inBoardTiles];
             const newFreeTiles: Array<Option<Tile>> = [...freeTiles];
-            const tmp = newFreeTiles[from];
-            newFreeTiles[from] = newInBoardTiles[to];
-            newInBoardTiles[to] = tmp;
-            const newInsertedPositions: Array<number> = [...insertedPositions, to];
+            const tmp = newFreeTiles[Number(from)];
+            newFreeTiles[Number(from)] = newInBoardTiles[Number(to)];
+            newInBoardTiles[Number(to)] = tmp;
+            const newInsertedPositions: Array<number> = [...insertedPositions, Number(to)];
             const newGameState = {
                 ...prevState,
                 inBoardTiles: newInBoardTiles,

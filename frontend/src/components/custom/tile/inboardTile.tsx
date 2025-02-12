@@ -23,16 +23,17 @@ type InBoardProps = {
 };
 
 const InBoardTile: React.FC<InBoardProps> = (props) => {
+  const { tile, index, gridTransform, n } = props;
   const imgClasses = setupClasses({
-    tile: props.tile,
+    tile,
     imgClasses: props.imgClasses,
-    gridTransform: props.gridTransform,
-    n: props.n
+    gridTransform,
+    n
   });
-  const { tile, index } = props;
+  const {insertedPositions}: {insertedPositions: Array<number>} = useGame();
   const rotateTile = (e: React.PointerEvent) => {
     e.preventDefault();
-    if (!e.target) return;
+    if (!e.target || !insertedPositions.includes(index)) return;
     const img = e.target as HTMLImageElement;
     const className = img.className;
     const indexStart = className.indexOf("rotate-");
@@ -40,8 +41,7 @@ const InBoardTile: React.FC<InBoardProps> = (props) => {
     const newRotation = (parseInt(actualRotation) + 180) % 360;
     img.className = img.className.replace("rotate-" + actualRotation, "rotate-" + newRotation);
   }
-  const {insertedPositions} = useGame();
-  const {setNodeRef} = useInBoardTile(props.index);
+  const {setNodeRef} = useInBoardTile(index);
   return (
     <>
       {tile && (
@@ -56,7 +56,7 @@ const InBoardTile: React.FC<InBoardProps> = (props) => {
               ".png"
             }
             className={imgClasses}
-            onPointerDown={(insertedPositions.includes(index))?rotateTile: ()=>{}}
+            onPointerDown={rotateTile}
           />
       )}
       {!tile && (
