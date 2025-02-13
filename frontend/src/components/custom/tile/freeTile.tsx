@@ -15,10 +15,10 @@ const FreeTile: React.FC<{
       heighClass = "h-24";
       break;
     case 6:
-      heighClass = "h-12 md:h-24 lg:h-24 xl:h-28";
+      heighClass = "h-24 md:h-30 lg:h-30";
       break;
     case 9:
-      heighClass = "h-10 md:h-16 lg:h-16 xl:h-20";
+      heighClass = "h-24 md:h-30 lg:h-30";
       break;
     default:
       break;

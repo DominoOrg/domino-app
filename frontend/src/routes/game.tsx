@@ -17,36 +17,37 @@ const Game = () => {
   // if (error) return <div>Error: {error.message}</div>;
   const data: { id: string, tiles: Array<Option<Tile>>} = {
     id: puzzleId,
-    tiles: new Array(28).fill(null)// tiles: [
-    //   Tile.from([1,4]),
-    //   Tile.from([4,0]),
-    //   Tile.from([0,3]),
-    //   Tile.from([3,2]),
-    //   null,
-    //   Tile.from([2,0]),
-    //   Tile.from([0,5]),
-    //   Tile.from([5,4]),
-    //   Tile.from([4,2]),
-    //   null,
-    //   null,
-    //   null,
-    //   null,
-    //   null,
-    //   null,
-    //   null,
-    //   null,
-    //   Tile.from([3,6]),
-    //   null,
-    //   null,
-    //   Tile.from([5,1]),
-    //   Tile.from([1,3]),
-    //   null,
-    //   null,
-    //   null,
-    //   Tile.from([2,6]),
-    //   Tile.from([6,6]),
-    //   Tile.from([6,1])
-    // ]
+    // tiles: new Array(28).fill(null)
+    tiles: [
+      Tile.from([1,4]),
+      Tile.from([4,0]),
+      Tile.from([0,3]),
+      Tile.from([3,2]),
+      null,
+      Tile.from([2,0]),
+      Tile.from([0,5]),
+      Tile.from([5,4]),
+      Tile.from([4,2]),
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      Tile.from([3,6]),
+      null,
+      null,
+      Tile.from([5,1]),
+      Tile.from([1,3]),
+      null,
+      null,
+      null,
+      Tile.from([2,6]),
+      Tile.from([6,6]),
+      Tile.from([6,1])
+    ]
   };
   // let n = getN(data?.tiles);
 

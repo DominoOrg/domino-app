@@ -24,7 +24,7 @@ type InBoardProps = {
 
 const InBoardTile: React.FC<InBoardProps> = (props) => {
   const { tile, index, gridTransform, n } = props;
-  const imgClasses = setupClasses({
+  const {imgCls, tileCls} = setupClasses({
     tile,
     imgClasses: props.imgClasses,
     gridTransform,
@@ -43,12 +43,13 @@ const InBoardTile: React.FC<InBoardProps> = (props) => {
   }
   const {setNodeRef} = useInBoardTile(index);
   return (
-    <>
+    <div
+      ref={setNodeRef}
+      key={index}
+      className={tileCls}
+    >
       {tile && (
           <img
-            id={tile.left+""+tile.right}
-            ref={setNodeRef}
-            key={index}
             src={
               "tile" +
               (tile.left > tile.right
@@ -56,20 +57,18 @@ const InBoardTile: React.FC<InBoardProps> = (props) => {
                 : tile.right + "" + tile.left) +
               ".png"
             }
-            className={imgClasses}
+            className={imgCls}
             onPointerDown={rotateTile}
           />
       )}
       {!tile && (
         // Only if the tile is missing mark it with the drop ref
           <img
-            ref={setNodeRef}
-            key={index}
             src="missing_tile.png"
-            className={imgClasses}
+            className={imgCls}
           />
       )}
-    </>
+    </div>
   );
 };
 
@@ -83,11 +82,12 @@ function setupClasses(props: {
 }) {
   const { tile, imgClasses, gridTransform } = props;
   let imgCls = imgClasses;
+  let tileCls = "";
   if (gridTransform) {
     const { current_row, current_col, row_span, col_span } = gridTransform;
     let { rotation } = gridTransform;
     // If the tile is displayed withing the grid add more classes on the position and rotation of the tile
-    imgCls += clsx(
+    tileCls += clsx(
       `row-start-${current_row}`,
       `col-start-${current_col}`,
       `row-end-${current_row + row_span}`,
@@ -124,5 +124,5 @@ function setupClasses(props: {
   
 
 
-  return imgCls
+  return {imgCls, tileCls};
 }

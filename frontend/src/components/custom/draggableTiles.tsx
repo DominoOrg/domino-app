@@ -9,7 +9,7 @@ const DraggableTiles = () => {
     <div className="flex justify-center items-center w-full h-36">
       <div className={
         "flex justify-around h-20 mx-auto " +
-        "w-5/6 md:w-3/4 lg:w-1/2"
+        "w-5/6 md:w-3/4 lg:w-3/4"
       }>
         {freeTiles.map((tile: Option<Tile>, i: number) => (
           <FreeTile
