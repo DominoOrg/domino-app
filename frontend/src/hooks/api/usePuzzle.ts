@@ -1,9 +1,9 @@
-import { Tile } from "@/hooks/game_state/types";
+import { Option, Tile } from "@/hooks/game_state/types";
 import { useQuery } from "@tanstack/react-query";
 
 export type Puzzle = {
   id: string;
-  tiles: Array<[number, number] | null>;
+  tiles: Array<Option<Tile>>;
 }
 
 export function usePuzzle(id: string) {

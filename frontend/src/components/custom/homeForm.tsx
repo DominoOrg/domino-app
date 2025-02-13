@@ -34,7 +34,6 @@ function HomeForm() {
     let json;
     let c = Number(values.difficulty);
     do {
-      // const baseApiUrl = import.meta.env.MODE =="development"? "http://localhost:8000/api": "https://domino.myddns.me/api";
       const apiUrl = "api/select_puzzle?n=" +
         values.n +
         "&c=" +

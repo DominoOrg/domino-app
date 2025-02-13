@@ -34,8 +34,8 @@ export const GameContextProvider = ({ puzzle, children }: { puzzle: Array<Option
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
         console.log(active, over);
-        if (over?.id &&
-            (state.insertedPositions.includes(over.id as number) ||
+        if (over &&
+            (state.insertedPositions.includes(Number(over.id)) ||
             !state.inBoardTiles[Number(over.id)])
         ) {
             moveTile(active.id as number, over.id as number);
@@ -70,10 +70,21 @@ const reducer = (prevState: GameState, action: Action): GameState => {
             } = prevState;
             const newInBoardTiles: Array<Option<Tile>> = [...inBoardTiles];
             const newFreeTiles: Array<Option<Tile>> = [...freeTiles];
+            let newInsertedPositions: Array<number> = [...insertedPositions];
+            if (newFreeTiles && newFreeTiles.length > Number(from) && newFreeTiles[Number(from)]!==null) {
+                newInsertedPositions.push(Number(to));
+            } else {
+                const index = newInsertedPositions.indexOf(Number(to));
+                if (index > -1) {
+                    newInsertedPositions.splice(index, 1);
+                }
+            }
+
             const tmp = newFreeTiles[Number(from)];
             newFreeTiles[Number(from)] = newInBoardTiles[Number(to)];
             newInBoardTiles[Number(to)] = tmp;
-            const newInsertedPositions: Array<number> = [...insertedPositions, Number(to)];
+
+
             const newGameState = {
                 ...prevState,
                 inBoardTiles: newInBoardTiles,

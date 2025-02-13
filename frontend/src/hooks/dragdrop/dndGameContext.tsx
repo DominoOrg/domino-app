@@ -1,4 +1,4 @@
-import { DndContext, MouseSensor, TouchSensor, useSensor, useSensors, DragEndEvent, rectIntersection, pointerWithin } from "@dnd-kit/core";
+import { DndContext, MouseSensor, TouchSensor, useSensor, useSensors, DragEndEvent, pointerWithin } from "@dnd-kit/core";
 
 interface PropsWithDragEndEvent {
     onDragEnd: (event: DragEndEvent) => void,
