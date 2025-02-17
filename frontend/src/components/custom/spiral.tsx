@@ -1,0 +1,58 @@
+import { Tile as TileType, Option } from "@/hooks/game_state/types";
+import { InBoardTile } from "./inBoardTile";
+
+export const Spiral = ({tiles}: {tiles: Array<Option<TileType>>}) => {
+  const nSides = 2 * Math.floor(Math.sqrt(tiles.length));
+  const rows = 1 + nSides;
+  const cols = 2 + nSides;
+  const center: { row: number, col: number } = {
+    col: Math.floor(cols / 2),
+    row: Math.floor(cols / 2),
+  };
+  return (
+  <div
+    className={`w-1/2 aspect-square overflow-hidden`}
+    style={{
+      display: 'grid',
+      gridTemplateColumns: `repeat(${cols}, 1fr)`,
+      gridTemplateRows: `repeat(${rows}, 1fr)`,
+    }}
+    >
+    {new Array(nSides + 1).fill(0).map((_, i) => {
+      return (
+        <SpiralSide
+          key={i}
+          index={i}
+          tiles={tiles}
+          spiralCenter={center}/>
+      )
+    })}       
+  </div>
+  );
+}
+
+const SpiralSide = ({index, tiles, spiralCenter}: {
+  index: number,
+  tiles: Array<Option<TileType>>,
+  spiralCenter: { row: number, col: number}
+}) => {
+  const sideBaseIndex = Math.floor((index + 1)/2) * Math.ceil((index + 1)/2);
+  const nTiles = Math.floor(index/2) + 1;
+  return (
+    <>
+      {tiles.slice(sideBaseIndex, sideBaseIndex + nTiles).map((tile, j) => {
+          return (
+            <InBoardTile
+              key={j}
+              tile={tile}
+              spiralCenter={spiralCenter}
+              spiralSideIndex={index}
+              tileIndex={j}
+              color={"bg-[#00284B]"}
+              absoluteIndex={sideBaseIndex + j}
+              />
+          )  
+      })}
+    </>
+  )
+}
