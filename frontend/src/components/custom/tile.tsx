@@ -1,7 +1,7 @@
 import { CSSProperties } from "react";
 import { TileHalve } from "./tileHalve";
 import { Tile as TileType, Option } from "@/hooks/game_state/types";
-import { useDraggable } from "@dnd-kit/core";
+import { useDraggable, useDroppable } from "@dnd-kit/core";
 
 export interface TileProps {
     tile: Option<TileType>,
@@ -14,7 +14,8 @@ export interface TileProps {
 
 export const Tile = ({ tile, rotation, spiralSideIndex = 1, color, style = {}, tileIndex }: TileProps) => {
     const layout = spiralSideIndex % 2 === 0? '': 'flex-col';
-    const { attributes, listeners, setNodeRef, transform } = useDraggable({ id: tileIndex });
+    const { attributes, listeners, transform, ...draggableProps } = useDraggable({ id: tileIndex });
+    const { setNodeRef } = useDroppable({ id: tileIndex });
     const dragStyle = transform ? {
         transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
     } : undefined;
@@ -25,10 +26,10 @@ export const Tile = ({ tile, rotation, spiralSideIndex = 1, color, style = {}, t
     return (
         <>
             {tile && <div
-                ref={setNodeRef}
+                ref={draggableProps.setNodeRef}
                 {...listeners}
                 {...attributes}
-                className={`${size} flex ${layout} justify-around border-2 rounded overflow-hidden`}
+                className={`${size} flex ${layout} justify-around border-2 rounded overflow-hidden shadow-md`}
                 style={{...style, ...dragStyle}}
                 >
                 <TileHalve value={rotation ? tile.right : tile.left} sideIndex={spiralSideIndex}  color={color}/>

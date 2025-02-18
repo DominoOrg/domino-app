@@ -62,7 +62,9 @@ type Action = {
 const reducer = (prevState: GameState, action: Action): GameState => {
     switch (action.type) {
         case "MOVE_TILE":
-            const { from, to }: { from: number, to: number } = action.payload;
+            let { from, to }: { from: number, to: number } = action.payload;
+            if (from >= 100) from -= 100;
+            if (to >= 100) to -= 100;
             const { inBoardTiles, freeTiles, insertedPositions }: {
                 inBoardTiles: Array<Option<Tile>>,
                 freeTiles: Array<Option<Tile>>,
@@ -84,13 +86,13 @@ const reducer = (prevState: GameState, action: Action): GameState => {
             newFreeTiles[Number(from)] = newInBoardTiles[Number(to)];
             newInBoardTiles[Number(to)] = tmp;
 
-
             const newGameState = {
                 ...prevState,
                 inBoardTiles: newInBoardTiles,
                 freeTiles: newFreeTiles,
                 insertedPositions: newInsertedPositions
             };
+            console.log(newGameState)
             return newGameState;
     }
 };

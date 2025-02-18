@@ -16,6 +16,7 @@ export const Spiral = ({tiles}: {tiles: Array<Option<TileType>>}) => {
       display: 'grid',
       gridTemplateColumns: `repeat(${cols}, 1fr)`,
       gridTemplateRows: `repeat(${rows}, 1fr)`,
+      gridGap: '4px'
     }}
     >
     {new Array(nSides + 1).fill(0).map((_, i) => {
