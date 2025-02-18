@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import Header from "@/components/custom/header";
 import Tutorial from "@/components/custom/tutorial";
-import { GameContextProvider } from "@/hooks/game_state/context";
+import { GameContextProvider } from "@/hooks/game_state/provider";
 import { usePuzzle } from "@/hooks/api/usePuzzle";
 import { Spiral } from "@/components/custom/spiral";
 import { Controls } from "@/components/custom/controls";
