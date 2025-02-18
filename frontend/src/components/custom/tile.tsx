@@ -27,7 +27,7 @@ export const Tile = ({ tile, rotation, spiralSideIndex = 1, color, style = {}, t
                 {...attributes}
                 className={`${size} flex ${layout} justify-around border-2 rounded overflow-hidden shadow-md`}
                 style={{...style, ...dragStyle}}
-                onPointerDown={()=>{console.log("clicked");rotateTile(tileIndex)}}
+                onPointerDown={()=>rotateTile(tileIndex)}
                 >
                 <TileHalve value={rotation ? tile.right : tile.left} sideIndex={spiralSideIndex}  color={color}/>
                 <TileHalve value={rotation ? tile.left : tile.right} sideIndex={spiralSideIndex}  color={color}/>

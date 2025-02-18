@@ -1,4 +1,4 @@
-import { DndContext, MouseSensor, TouchSensor, useSensor, useSensors, DragEndEvent, pointerWithin } from "@dnd-kit/core";
+import { DndContext, MouseSensor, TouchSensor, useSensor, useSensors, DragEndEvent, pointerWithin, closestCenter } from "@dnd-kit/core";
 import { GameContext } from "../game_state/context";
 import { useContext } from "react";
 
@@ -20,7 +20,6 @@ export const DndGameContext: React.FC<PropsWithDragEndEvent> = ({ children }) =>
 
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
-        console.log(active, over);
         if (over &&
             (context.insertedPositions.includes(Number(over.id)) ||
             !context.inBoardTiles[Number(over.id)])) {
