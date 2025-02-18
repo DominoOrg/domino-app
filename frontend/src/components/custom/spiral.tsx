@@ -1,7 +1,9 @@
 import { Tile as TileType, Option } from "@/hooks/game_state/types";
 import { InBoardTile } from "./inBoardTile";
+import { useGame } from "@/hooks/game_state/useGame";
 
-export const Spiral = ({tiles}: {tiles: Array<Option<TileType>>}) => {
+export const Spiral = () => {
+  const tiles = useGame().inBoardTiles;
   const nSides = 2 * Math.floor(Math.sqrt(tiles.length));
   const rows = 1 + nSides;
   const cols = 2 + nSides;
@@ -49,7 +51,7 @@ const SpiralSide = ({index, tiles, spiralCenter}: {
               spiralCenter={spiralCenter}
               spiralSideIndex={index}
               tileIndex={j}
-              color={"bg-[#00284B]"}
+              color={"bg-primary"}
               absoluteIndex={sideBaseIndex + j}
               />
           )  

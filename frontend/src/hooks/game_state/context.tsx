@@ -1,13 +1,13 @@
 import React, { ReactNode, useReducer } from "react";
 import { Tile, Option, TileSet } from "./types";
-import { DndGameContext } from "@/hooks/dragdrop/dndGameContext";
-import { DragEndEvent } from "@dnd-kit/core";
 
 export interface GameState {
     inBoardTiles: Array<Option<Tile>>,
     insertedPositions: Array<number>,
     freeTiles: Array<Option<Tile>>,
     tileset: TileSet,
+    moveTile: (from: number, to: number) => void,
+    rotateTile: (index: number) => void
 }
 
 export const GameContext = React.createContext<GameState | undefined>(undefined);
@@ -18,11 +18,14 @@ export const GameContextProvider = ({ puzzle, children }: { puzzle: Array<Option
         .filter(tile =>
             !puzzle.some(t => t && t.is_equal(tile))
         );
+
     const initialState: GameState = {
         inBoardTiles: puzzle,
         insertedPositions: [],
         freeTiles,
-        tileset,  // Ensure TileSet can be initialized with an empty array
+        tileset,
+        moveTile: () => {},
+        rotateTile: () => {},
     };
 
     const [state, dispatch] = useReducer(reducer, initialState);
@@ -30,23 +33,16 @@ export const GameContextProvider = ({ puzzle, children }: { puzzle: Array<Option
     const moveTile = (from: number, to: number) => {
         dispatch({ type: "MOVE_TILE", payload: { from, to } });
     };
-    
-    const handleDragEnd = (event: DragEndEvent) => {
-        const { active, over } = event;
-        console.log(active, over);
-        if (over &&
-            (state.insertedPositions.includes(Number(over.id)) ||
-            !state.inBoardTiles[Number(over.id)])
-        ) {
-            moveTile(active.id as number, over.id as number);
-        }
-    }
-    
+
+    const rotateTile = (index: number) => {
+        dispatch({ type: "ROTATE_TILE", payload: { index } });
+    };
+
+    const updatedState: GameState = { ...state, moveTile, rotateTile };
+
     return (
-        <GameContext.Provider value={ state }>
-            <DndGameContext onDragEnd={handleDragEnd}>
-                {children}
-            </DndGameContext>
+        <GameContext.Provider value={ updatedState }>
+            {children}
         </GameContext.Provider>
     );
 };
@@ -57,7 +53,7 @@ type Action = {
         from: number,
         to: number,
     }
-};
+} | { type: "ROTATE_TILE", payload: { index: number }};
 
 const reducer = (prevState: GameState, action: Action): GameState => {
     switch (action.type) {
@@ -92,7 +88,26 @@ const reducer = (prevState: GameState, action: Action): GameState => {
                 freeTiles: newFreeTiles,
                 insertedPositions: newInsertedPositions
             };
-            console.log(newGameState)
             return newGameState;
+        case "ROTATE_TILE":
+            let { index }: { index: number } = action.payload;
+            const newFreeTiles2 = [...prevState.freeTiles];
+            const newInBoardTiles2 = [...prevState.inBoardTiles];
+            if (prevState.insertedPositions.includes(index) && index > 0 && index < newFreeTiles2.length && newFreeTiles2[index]) {
+                console.log("rotating")
+                const newTile = newFreeTiles2[index];
+                newInBoardTiles2[index] = newTile.flip();
+            } else {
+                console.log(prevState.insertedPositions.includes(index), index >= 0, index < newFreeTiles2.length, newFreeTiles2[index])
+            }
+
+            const newGameState2 = {
+                ...prevState,
+                freeTiles: newFreeTiles2,
+                inBoardTiles: newInBoardTiles2 
+            }
+            console.log(newGameState2)
+            return newGameState2;
+
     }
 };

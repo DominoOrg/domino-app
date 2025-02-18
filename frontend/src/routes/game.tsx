@@ -6,6 +6,7 @@ import { usePuzzle } from "@/hooks/api/usePuzzle";
 import { Spiral } from "@/components/custom/spiral";
 import { Tile, Option } from "@/hooks/game_state/types";
 import { Controls } from "@/components/custom/controls";
+import { DndGameContext } from "@/hooks/dragdrop/dndGameContext";
 
 const Game = () => {
   const { puzzleId }: {
@@ -104,11 +105,13 @@ const Game = () => {
     <div className="relative w-screen h-screen flex flex-col justify-around items-center overflow-hidden">
       <Header/>
       <GameContextProvider puzzle={data.tiles}>
-        <Spiral tiles={data.tiles} />
-        <Controls/>
+        <DndGameContext>
+          <Spiral/>
+          <Controls/>
+        </DndGameContext>
       </GameContextProvider>            
-      <Tutorial/>
-    </div>
+    <Tutorial/>
+  </div>
   );
 };
 

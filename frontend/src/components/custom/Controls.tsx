@@ -15,7 +15,7 @@ export const Controls = () => {
             key={i}
             tile={tile}
             rotation={false} 
-            color={"bg-[#00284B]"}
+            color={"bg-primary"}
             tileIndex={i+100}/>
         ))}
       </div>
