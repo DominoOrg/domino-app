@@ -5,7 +5,7 @@ import { GameContextProvider } from "@/hooks/game_state/context";
 import { usePuzzle } from "@/hooks/api/usePuzzle";
 import { Spiral } from "@/components/custom/spiral";
 import { Tile, Option } from "@/hooks/game_state/types";
-import Controls from "@/components/custom/Controls";
+import { Controls } from "@/components/custom/controls";
 
 const Game = () => {
   const { puzzleId }: {

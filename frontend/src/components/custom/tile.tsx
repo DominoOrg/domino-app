@@ -6,25 +6,29 @@ import { useDraggable } from "@dnd-kit/core";
 export interface TileProps {
     tile: Option<TileType>,
     rotation: boolean,
-    spiralSideIndex: number,
+    spiralSideIndex?: number,
     color: string,
-    style: CSSProperties
+    style?: CSSProperties
     tileIndex: number
 }
 
-export const Tile = ({ tile, rotation, spiralSideIndex, color, style, tileIndex }: TileProps) => {
+export const Tile = ({ tile, rotation, spiralSideIndex = 1, color, style = {}, tileIndex }: TileProps) => {
     const layout = spiralSideIndex % 2 === 0? '': 'flex-col';
     const { attributes, listeners, setNodeRef, transform } = useDraggable({ id: tileIndex });
     const dragStyle = transform ? {
         transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
     } : undefined;
+    let size = ``;
+    if (tileIndex >= 100) {
+        size = `w-6 h-12 md:w-8 md:h-16 lg:w-12 lg:h-24`;
+    };
     return (
         <>
             {tile && <div
                 ref={setNodeRef}
                 {...listeners}
                 {...attributes}
-                className={`flex ${layout} justify-around border-2 rounded overflow-hidden`}
+                className={`${size} flex ${layout} justify-around border-2 rounded overflow-hidden`}
                 style={{...style, ...dragStyle}}
                 >
                 <TileHalve value={rotation ? tile.right : tile.left} sideIndex={spiralSideIndex}  color={color}/>
@@ -34,7 +38,7 @@ export const Tile = ({ tile, rotation, spiralSideIndex, color, style, tileIndex 
                 ref={setNodeRef}
                 {...listeners}
                 {...attributes}
-                className="border-dashed border-2 rounded overflow-hidden"
+                className={`${size} border-dashed border-2 rounded overflow-hidden`}
                 style={{...style, ...dragStyle}}
                 ></div>}
         </>

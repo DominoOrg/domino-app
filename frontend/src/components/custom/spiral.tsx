@@ -11,7 +11,7 @@ export const Spiral = ({tiles}: {tiles: Array<Option<TileType>>}) => {
   };
   return (
   <div
-    className={`w-1/2 aspect-square overflow-hidden`}
+    className={`w-5/6 md:w-1/2 lg:w-1/3 aspect-square`}
     style={{
       display: 'grid',
       gridTemplateColumns: `repeat(${cols}, 1fr)`,

@@ -2,8 +2,8 @@ import { useGame } from "@/hooks/game_state/useGame";
 import { Option, Tile as TileType } from "@/hooks/game_state/types";
 import { Tile } from "./tile";
 
-const Controls = () => {
-  const {freeTiles, tileset} = useGame();
+export const Controls = () => {
+  const {freeTiles} = useGame();
   
   return (
     <div className="flex flex-col justify-center items-center w-full">
@@ -14,13 +14,12 @@ const Controls = () => {
           <Tile
             key={i}
             tile={tile}
-            rotation={false}
-          />
+            rotation={false} 
+            color={"bg-[#00284B]"}
+            tileIndex={i+100}/>
         ))}
       </div>
       
     </div>
   );
 };
-
-export default Controls;
