@@ -1,5 +1,3 @@
-# LABEL FOR GHCR.IO
-LABEL org.opencontainers.image.source https://github.com/OWNER/REPO
 # BASE IMAGE FOR RUST BUILD OF THE SOURCES
 # INSTALL HIGHS DEPENDENCIES (COMPILING IT NOT FROM SOURCE BUT FROM highs-sys CRATE)
 # THEN BUILD FROM SOURCES
@@ -23,6 +21,8 @@ WORKDIR /usr/local/bin
 COPY --from=backend-builder /usr/local/cargo/bin/backend ./backend
 COPY ./backend/domino.db /usr/local/bin/
 COPY --from=frontend-builder /usr/src/frontend/dist/. ./dist/
+# LABEL FOR GHCR.IO
+LABEL org.opencontainers.image.source https://github.com/OWNER/REPO
 RUN mv ./dist ./static
 
 CMD ["/usr/local/bin/backend"]
