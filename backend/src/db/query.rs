@@ -1,191 +1,197 @@
 use rand::prelude::*;
-
 use crate::endpoints::ApiPuzzle;
+use sqlite::{Connection, Error};
 
-fn open_connection() -> Result<sqlite::Connection, sqlite::Error> {
+/// Opens a connection to the SQLite database.
+///
+/// # Returns
+/// * `Ok(Connection)` - The database connection if successful.
+/// * `Err(Error)` - If the connection fails.
+fn open_connection() -> Result<Connection, Error> {
     sqlite::open("./domino.db")
 }
 
-pub fn query_puzzle(n: usize, c: usize) -> Result<ApiPuzzle, sqlite::Error> {
-    let connection = open_connection()?;
-    let mut stmt = "
-        SELECT P.id, C.len
-        FROM puzzle P, collection C
-        WHERE n = ".to_owned() + &n.to_string() + " 
-        AND c = " + &c.to_string() + " 
-        AND P.collection_id = C.id
-    ";
-    //println!("stmt: {}", stmt);
-    let mut valid_puzzle_ids = vec![];
-    let mut valid_puzzle_lengths = vec![];
-    connection.iterate(stmt, |result| {
-        for (column, value) in result {
-            if column.to_string() == "id".to_string() {
-                if let Some(value) = value {
-                    let puzzle_id = value.to_string();                    
-                    valid_puzzle_ids.push(puzzle_id);
-                }
-            } else if column.to_string() == "len".to_string() {
-                if let Some(value) = value {
-                    let puzzle_length = value.to_string().parse::<i32>().unwrap();
-                    valid_puzzle_lengths.push(puzzle_length);
-                }
-            }
-        }
-        true
-    }).expect("Error fetching the puzzle id");
-
-    let mut rand_seed = rand::thread_rng();
-    if valid_puzzle_ids.len() == 0 {
-        return Ok(ApiPuzzle{
-            id: "".to_string(),
-            tiles: vec![]
-        });
-    }
-    let rand_index = rand_seed.gen_range(0..valid_puzzle_ids.len());
-    let puzzle_id = valid_puzzle_ids[rand_index].clone();
-    let puzzle_len = valid_puzzle_lengths[rand_index];
-    let mut tiles_info: Vec<(String, String)> = vec![];
-    stmt = "SELECT tile_id, position FROM inserted_tile WHERE collection_id = \"".to_owned() + &puzzle_id +"\"";
-    //println!("stmt: {}", stmt);
-    connection.iterate(stmt, |result| {
-        let mut tile_info: (String, String) = ("".to_string(), "".to_string());
-        for (column, value) in result {
-
-            if column.to_string() == "tile_id".to_string() {
-                tile_info.0 = value.unwrap().to_owned();
-            } else if column.to_string() == "position".to_string() {
-                tile_info.1 = value.unwrap().to_owned();
-            }
-        }
-        tiles_info.push(tile_info);
-        true
-    }).expect("Error fetching inserted tiles");
-
-    let mut tiles: Vec<Option<Vec<i32>>> = vec![];
-    for tile_index in 0..puzzle_len {
-        let tile_info = tiles_info.iter().find(|tile_info| tile_info.1 == tile_index.to_string());
-        if let Some(tile_info) = tile_info {
-            stmt = "SELECT left, right FROM tile WHERE id = \"".to_owned() + &tile_info.0 +"\"";
-            //println!("stmt: {}", stmt);
-            connection.iterate(stmt, |result| {
-                let mut left = -1;
-                let mut right = -1;
-    
-                for (column, value) in result {
-    
-                    if column.to_string() == "left".to_string() {
-                        left = value.unwrap().parse::<i32>().unwrap();
-                        if right != -1 {
-                            let tile = vec![left, right];
-                            tiles.push(Some(tile));
-                            return true;
-                        }
-                    } else if column.to_string() == "right".to_string() {
-                        right = value.unwrap().parse::<i32>().unwrap();
-                        if left != -1 {
-                            let tile = vec![left, right];
-                            tiles.push(Some(tile));
-                            return true;
-                        }
-                    }
-                }
-    
-                false
-            }).expect("Error fetching the tiles");    
-        } else {
-            tiles.push(None);
-            continue;
-        }
-    }
-    Ok(ApiPuzzle { id: puzzle_id, tiles})
-}
-
-pub fn query_puzzle_by_id(id: String) -> Result<ApiPuzzle, sqlite::Error> {
-    let connection = open_connection()?;
-    let mut stmt = "
-        SELECT *
-        FROM puzzle P, collection C
-        WHERE P.id = \"".to_owned() + &id+"\" AND P.collection_id = C.id";
-
-    println!("stmt: {}", stmt);
-    let mut valid_puzzle_ids = vec![];
-    let mut valid_puzzle_lengths = vec![];
-    connection.iterate(stmt, |result| {
-        for (column, value) in result {
-            if column.to_string() == "id".to_string() {
-                if let Some(value) = value {
-                    let puzzle_id = value.to_string();                    
-                    valid_puzzle_ids.push(puzzle_id);
-                }
-            } else if column.to_string() == "len".to_string() {
-                if let Some(value) = value {
-                    let puzzle_length = value.to_string().parse::<i32>().unwrap();
-                    valid_puzzle_lengths.push(puzzle_length);
-                }
-            }
-        }
-        true
-    }).expect("Error fetching the puzzle id");
-
-    let mut tiles_info: Vec<(String, String)> = vec![];
-    stmt = "SELECT tile_id, position FROM inserted_tile WHERE collection_id = \"".to_owned() + &id +"\"";
-    //println!("stmt: {}", stmt);
-    connection.iterate(stmt, |result| {
-        let mut tile_info: (String, String) = ("".to_string(), "".to_string());
-        for (column, value) in result {
-
-            if column.to_string() == "tile_id".to_string() {
-                tile_info.0 = value.unwrap().to_owned();
-            } else if column.to_string() == "position".to_string() {
-                tile_info.1 = value.unwrap().to_owned();
-            }
-        }
-        tiles_info.push(tile_info);
-        true
-    }).expect("Error fetching inserted tiles");
-
-    let puzzle_len = valid_puzzle_lengths[0];
-    let mut tiles: Vec<Option<Vec<i32>>> = vec![];
-    for tile_index in 0..puzzle_len {
-        let tile_info = tiles_info.iter().find(|tile_info| tile_info.1 == tile_index.to_string());
-        if let Some(tile_info) = tile_info {
-            stmt = "SELECT left, right FROM tile WHERE id = \"".to_owned() + &tile_info.0 +"\"";
-            //println!("stmt: {}", stmt);
-            connection.iterate(stmt, |result| {
-                let mut left = -1;
-                let mut right = -1;
-    
-                for (column, value) in result {
-    
-                    if column.to_string() == "left".to_string() {
-                        left = value.unwrap().parse::<i32>().unwrap();
-                        if right != -1 {
-                            let tile = vec![left, right];
-                            tiles.push(Some(tile));
-                            return true;
-                        }
-                    } else if column.to_string() == "right".to_string() {
-                        right = value.unwrap().parse::<i32>().unwrap();
-                        if left != -1 {
-                            let tile = vec![left, right];
-                            tiles.push(Some(tile));
-                            return true;
-                        }
-                    }
-                }
-    
-                false
-            }).expect("Error fetching the tiles");    
-        } else {
-            tiles.push(None);
-            continue;
-        }
-    }
-    Ok(ApiPuzzle { id, tiles})
-}
-
-pub fn mutation(query: String) -> Result<(), sqlite::Error> {
+/// Executes a mutation query in the database.
+///
+/// # Arguments
+/// * `query` - The SQL query string.
+///
+/// # Returns
+/// * `Ok(())` - If the execution is successful.
+/// * `Err(Error)` - If the query fails.
+pub fn mutation(query: String) -> Result<(), Error> {
     let connection = open_connection()?;
     connection.execute(query)
+}
+
+/// Fetches a puzzle from the database based on size `n` and complexity `c`.
+///
+/// # Arguments
+/// * `n` - The puzzle size.
+/// * `c` - The complexity level.
+///
+/// # Returns
+/// * `Ok(ApiPuzzle)` - The retrieved puzzle.
+/// * `Err(Error)` - If an error occurs during retrieval.
+pub fn query_puzzle(n: usize, c: usize) -> Result<ApiPuzzle, Error> {
+    let connection = open_connection()?;
+    let query = format!(
+        "SELECT P.id, C.len FROM puzzle P, collection C WHERE n = {} AND c = {} AND P.collection_id = C.id",
+        n, c
+    );
+
+    let (puzzle_id, puzzle_len) = fetch_puzzle_id_and_length(&connection, &query)?;
+    if puzzle_id.is_empty() {
+        return Ok(ApiPuzzle { id: "".to_string(), tiles: vec![] });
+    }
+
+    let tiles_info = fetch_tiles_info(&connection, &puzzle_id)?;
+    let tiles = fetch_tile_data(&connection, &tiles_info, puzzle_len);
+
+    Ok(ApiPuzzle { id: puzzle_id, tiles })
+}
+
+/// Fetches a puzzle from the database by its unique ID.
+///
+/// # Arguments
+/// * `id` - The unique identifier of the puzzle.
+///
+/// # Returns
+/// * `Ok(ApiPuzzle)` - The retrieved puzzle.
+/// * `Err(Error)` - If an error occurs during retrieval.
+pub fn query_puzzle_by_id(id: String) -> Result<ApiPuzzle, Error> {
+    let connection = open_connection()?;
+    let query = format!(
+        "SELECT * FROM puzzle P, collection C WHERE P.id = \"{}\" AND P.collection_id = C.id",
+        id
+    );
+
+    let (_, puzzle_len) = fetch_puzzle_id_and_length(&connection, &query)?;
+    let tiles_info = fetch_tiles_info(&connection, &id)?;
+    let tiles = fetch_tile_data(&connection, &tiles_info, puzzle_len);
+
+    Ok(ApiPuzzle { id, tiles })
+}
+
+/// Fetches a puzzle ID and its length from the database.
+///
+/// # Arguments
+/// * `connection` - The SQLite connection.
+/// * `query` - The SQL query string.
+///
+/// # Returns
+/// * `Ok((String, i32))` - The puzzle ID and its length.
+/// * `Err(Error)` - If an error occurs during retrieval.
+fn fetch_puzzle_id_and_length(connection: &Connection, query: &str) -> Result<(String, i32), Error> {
+    let mut puzzle_ids = vec![];
+    let mut puzzle_lengths = vec![];
+
+    connection.iterate(query, |rows| {
+        for (column, value) in rows {
+            match *column {
+                "id" => {
+                    if let Some(value) = value {
+                        puzzle_ids.push(value.to_string());
+                    }
+                }
+                "len" => {
+                    if let Some(value) = value {
+                        if let Ok(parsed_len) = value.parse::<i32>() {
+                            puzzle_lengths.push(parsed_len);
+                        }
+                    }
+                }
+                _ => {}
+            }
+        }
+        true
+    })?;
+
+    if puzzle_ids.is_empty() {
+        return Ok(("".to_string(), 0));
+    }
+
+    let rand_index = thread_rng().gen_range(0..puzzle_ids.len());
+    Ok((puzzle_ids[rand_index].clone(), puzzle_lengths[rand_index]))
+}
+
+/// Fetches the tiles information (ID and position) associated with a puzzle.
+///
+/// # Arguments
+/// * `connection` - The SQLite connection.
+/// * `puzzle_id` - The puzzle ID.
+///
+/// # Returns
+/// * `Ok(Vec<(String, String)>)` - A vector of (tile_id, position) tuples.
+/// * `Err(Error)` - If an error occurs during retrieval.
+fn fetch_tiles_info(connection: &Connection, puzzle_id: &str) -> Result<Vec<(String, String)>, Error> {
+    let query = format!(
+        "SELECT tile_id, position FROM inserted_tile WHERE collection_id = \"{}\"",
+        puzzle_id
+    );
+
+    let mut tiles_info = vec![];
+
+    connection.iterate(&query, |rows| {
+        let mut tile_info = ("".to_string(), "".to_string());
+        for (column, value) in rows {
+            match *column {
+                "tile_id" => {
+                    tile_info.0 = value.unwrap_or("").to_string();
+                }
+                "position" => {
+                    tile_info.1 = value.unwrap_or("").to_string();
+                }
+                _ => {}
+            }
+        }
+        tiles_info.push(tile_info);
+        true
+    })?;
+
+    Ok(tiles_info)
+}
+
+/// Fetches the tile data (left and right values) for a given puzzle.
+///
+/// # Arguments
+/// * `connection` - The SQLite connection.
+/// * `tiles_info` - A vector containing tile IDs and positions.
+/// * `puzzle_len` - The length of the puzzle.
+///
+/// # Returns
+/// * `Vec<Option<Vec<i32>>>` - A vector containing tile data.
+fn fetch_tile_data(
+    connection: &Connection,
+    tiles_info: &[(String, String)],
+    puzzle_len: i32,
+) -> Vec<Option<Vec<i32>>> {
+    let mut tiles = vec![None; puzzle_len as usize];
+
+    for tile_index in 0..puzzle_len {
+        if let Some((tile_id, _)) = tiles_info.iter().find(|(_, pos)| pos == &tile_index.to_string()) {
+            let query = format!("SELECT left, right FROM tile WHERE id = \"{}\"", tile_id);
+            connection.iterate(&query, |rows| {
+                let mut left = None;
+                let mut right = None;
+
+                for (column, value) in rows {
+                    match *column {
+                        "left" => left = value.and_then(|v| v.parse::<i32>().ok()),
+                        "right" => right = value.and_then(|v| v.parse::<i32>().ok()),
+                        _ => {}
+                    }
+                }
+
+                if let (Some(l), Some(r)) = (left, right) {
+                    tiles[tile_index as usize] = Some(vec![l, r]);
+                    return true;
+                }
+
+                false
+            }).expect("Error fetching tile data");
+        }
+    }
+
+    tiles
 }

@@ -1,138 +1,180 @@
 use std::hash::{DefaultHasher, Hash, Hasher};
-use query::{mutation, query_puzzle, query_puzzle_by_id};
-use domino_lib::{Puzzle, Solution};
-
+use domino_lib::{Puzzle, Solution, Tile};
 use crate::endpoints::ApiPuzzle;
+use query::{mutation, query_puzzle, query_puzzle_by_id};
 
 mod query;
 
+/// Generates a hash-based unique ID for a given element.
+///
+/// # Arguments
+/// * `element` - The element to hash.
+///
+/// # Returns
+/// A `String` representing the hashed ID.
 fn hash_id<T: Hash>(element: T) -> String {
     let mut hasher = DefaultHasher::new();
     element.hash(&mut hasher);
     format!("{:x}", hasher.finish())
 }
 
-pub fn insert_puzzle(puzzle: Puzzle, solution: Solution, n: usize, complexity: usize) -> Result<bool, sqlite::Error> {
-    // if puzzle, collection, inserted_tile, solution and tile do not exist create tables
+/// Inserts a puzzle and its solution into the database.
+///
+/// # Arguments
+/// * `puzzle` - The puzzle to insert.
+/// * `solution` - The solution corresponding to the puzzle.
+/// * `n` - The puzzle size.
+/// * `complexity` - The complexity level of the puzzle.
+///
+/// # Returns
+/// * `Ok(true)` if the insertion was successful.
+/// * `Ok(false)` if the puzzle already exists.
+/// * `Err(sqlite::Error)` if an error occurs.
+pub fn insert_puzzle(
+    puzzle: Puzzle,
+    solution: Solution,
+    n: usize,
+    complexity: usize,
+) -> Result<bool, sqlite::Error> {
     setup_tables()?;
-    // hash puzzle for id
+
     let puzzle_id = hash_id(puzzle.clone());
     let solution_id = hash_id(solution.clone());
-    // insert collection entity for the puzzle
-    let mut stmt = ("INSERT INTO collection (id, n, len) VALUES (\"".to_string() +
-        &puzzle_id.to_string() + "\", " +
-        &n.to_string() + ", " +
-        &puzzle.len().to_string() +
-    ");").to_string();
-    //println!("{stmt}");
-    if mutation(stmt).is_err() {
+
+    if mutation(format!(
+        "INSERT INTO collection (id, n, len) VALUES (\"{}\", {}, {});",
+        puzzle_id, n, puzzle.len()
+    ))
+    .is_err()
+    {
         return Ok(false);
-    };
-    // insert collection entity for the solution
-    stmt = ("INSERT INTO collection (id, n, len) VALUES (\"".to_string() +
-        &solution_id.to_string() + "\", " +
-        &n.to_string() + ", " +
-        &solution.len().to_string() +
-    ");").to_string();
-    //println!("{stmt}");
-    let _ = mutation(stmt);
-    for (i, &tile) in solution.iter().enumerate() {
-        // insert tile 
-        let tile_id = hash_id(tile);
-        stmt = ("INSERT INTO tile(id, left, right) VALUES (\"".to_string() +
-            &tile_id + "\", " +
-            &tile.0.to_string() + ", " +
-            &tile.1.to_string() +
-        ");").to_string();
-        //println!("{stmt}");
-        let _ = mutation(stmt);   
-        // Inserted_tile relation between the puzzle and the tile
-        let puzzle_tile = puzzle.get(i).unwrap();
-        if let Some(puzzle_tile) = puzzle_tile {
-            // insert inserted_tile relation
-            let tile_id = hash_id(puzzle_tile);
-            stmt = ("INSERT INTO inserted_tile(collection_id, tile_id, position) VALUES (\"".to_string() +
-                &puzzle_id.to_string() + "\", \"" +
-                &tile_id + "\", " +
-                &i.to_string() +
-            ");").to_string();
-            //println!("{stmt}");
-            mutation(stmt)?;
-        }
-        // insert inserted_tile relation between the solution and the tile
-        stmt = ("INSERT INTO inserted_tile(collection_id, tile_id, position) VALUES (\"".to_string() +
-            &solution_id.to_string() + "\", \"" +
-            &tile_id + "\", " +
-            &i.to_string() +
-        ");").to_string();
-        //println!("{stmt}");
-        let _ = mutation(stmt);
-         
     }
-    // insert solution
-    stmt = ("INSERT INTO solution(id, collection_id) VALUES (\"".to_string() +
-        &solution_id + "\", \"" +
-        &solution_id +
-    "\");").to_string();
-    //println!("{stmt}");
-    let _ = mutation(stmt);
-    // insert puzzle
-    stmt = ("INSERT INTO puzzle(id, collection_id, c, solved_by) VALUES (\"".to_string() +
-        &puzzle_id + "\", \"" +
-        &puzzle_id + "\", " +
-        &complexity.to_string() + ", \"" +
-        &solution_id +
-    "\");").to_string();
-    //println!("{stmt}");
-    mutation(stmt)?;
+
+    mutation(format!(
+        "INSERT INTO collection (id, n, len) VALUES (\"{}\", {}, {});",
+        solution_id, n, solution.len()
+    ))?;
+
+    for (i, &tile) in solution.iter().enumerate() {
+        insert_tile(tile)?;
+        if let Some(puzzle_tile) = puzzle.get(i).unwrap() {
+            insert_inserted_tile(&puzzle_id, puzzle_tile, i)?;
+        }
+        insert_inserted_tile(&solution_id, &tile, i)?;
+    }
+
+    mutation(format!(
+        "INSERT INTO solution(id, collection_id) VALUES (\"{}\", \"{}\");",
+        solution_id, solution_id
+    ))?;
+
+    mutation(format!(
+        "INSERT INTO puzzle(id, collection_id, c, solved_by) VALUES (\"{}\", \"{}\", {}, \"{}\");",
+        puzzle_id, puzzle_id, complexity, solution_id
+    ))?;
+
     Ok(true)
 }
 
+/// Inserts a tile into the database if it does not already exist.
+///
+/// # Arguments
+/// * `tile` - The tile to insert.
+///
+/// # Returns
+/// * `Ok(())` if successful.
+/// * `Err(sqlite::Error)` if an error occurs.
+fn insert_tile(tile: Tile) -> Result<(), sqlite::Error> {
+    let tile_id = hash_id(tile);
+    mutation(format!(
+        "INSERT INTO tile (id, left, right) VALUES (\"{}\", {}, {});",
+        tile_id, tile.0, tile.1
+    ))
+}
+
+/// Inserts an inserted_tile relationship into the database.
+///
+/// # Arguments
+/// * `collection_id` - The ID of the collection (puzzle or solution).
+/// * `tile` - The tile being inserted.
+/// * `position` - The position of the tile in the sequence.
+///
+/// # Returns
+/// * `Ok(())` if successful.
+/// * `Err(sqlite::Error)` if an error occurs.
+fn insert_inserted_tile(collection_id: &str, tile: &Tile, position: usize) -> Result<(), sqlite::Error> {
+    let tile_id = hash_id(tile);
+    mutation(format!(
+        "INSERT INTO inserted_tile (collection_id, tile_id, position) VALUES (\"{}\", \"{}\", {});",
+        collection_id, tile_id, position
+    ))
+}
+
+/// Retrieves a puzzle from the database based on its size and complexity.
+///
+/// # Arguments
+/// * `n` - The size of the puzzle.
+/// * `c` - The complexity level.
+///
+/// # Returns
+/// * `Ok(ApiPuzzle)` if found.
+/// * `Err(sqlite::Error)` if an error occurs.
 pub fn select_puzzle_from_db(n: i32, c: i32) -> Result<ApiPuzzle, sqlite::Error> {
     setup_tables()?;
-    // select puzzle by length n and complexity c
-    let puzzle = query_puzzle(n.try_into().unwrap(), c.try_into().unwrap())?; 
-    Ok(puzzle)
+    query_puzzle(n.try_into().unwrap(), c.try_into().unwrap())
 }
 
+/// Retrieves a puzzle from the database by its ID.
+///
+/// # Arguments
+/// * `id` - The unique identifier of the puzzle.
+///
+/// # Returns
+/// * `Ok(ApiPuzzle)` if found.
+/// * `Err(sqlite::Error)` if an error occurs.
 pub fn select_puzzle_by_id_from_db(id: String) -> Result<ApiPuzzle, sqlite::Error> {
     setup_tables()?;
-    // select puzzle by length n and complexity c
-    let puzzle = query_puzzle_by_id(id)?; 
-    Ok(puzzle)
+    query_puzzle_by_id(id)
 }
 
+/// Ensures that all required tables exist in the database.
+///
+/// # Returns
+/// * `Ok(())` if successful.
+/// * `Err(sqlite::Error)` if an error occurs.
 fn setup_tables() -> Result<(), sqlite::Error> {
-    mutation("CREATE TABLE IF NOT EXISTS tile (
-        id TEXT PRIMARY KEY,
-        left INT NOT NULL,
-        right INT NOT NULL
-    );".to_string())?;
+    let table_definitions = [
+        "CREATE TABLE IF NOT EXISTS tile (
+            id TEXT PRIMARY KEY,
+            left INT NOT NULL,
+            right INT NOT NULL
+        );",
+        "CREATE TABLE IF NOT EXISTS collection (
+            id TEXT PRIMARY KEY,
+            n INT NOT NULL,
+            len INT NOT NULL
+        );",
+        "CREATE TABLE IF NOT EXISTS inserted_tile (
+            collection_id TEXT NOT NULL REFERENCES collection(id),
+            tile_id TEXT NOT NULL REFERENCES tile(id),
+            position INT NOT NULL,
+            PRIMARY KEY(collection_id, tile_id)
+        );",
+        "CREATE TABLE IF NOT EXISTS solution (
+            id TEXT PRIMARY KEY,
+            collection_id TEXT NOT NULL REFERENCES collection(id)
+        );",
+        "CREATE TABLE IF NOT EXISTS puzzle (
+            id TEXT PRIMARY KEY,
+            collection_id TEXT NOT NULL REFERENCES collection(id),
+            c INT NOT NULL,
+            solved_by INT NOT NULL REFERENCES solution(id)
+        );",
+    ];
 
-    mutation("CREATE TABLE IF NOT EXISTS collection (
-        id TEXT PRIMARY KEY,
-        n INT NOT NULL,
-        len INT NOT NULL
-    );".to_string())?;
-
-    mutation("CREATE TABLE IF NOT EXISTS inserted_tile (
-        collection_id TEXT NOT NULL REFERENCES collection(id),
-        tile_id TEXT NOT NULL REFERENCES tile(id),
-        position INT NOT NULL,
-        PRIMARY KEY(collection_id, tile_id)
-    );".to_string())?;
-
-    mutation("CREATE TABLE IF NOT EXISTS solution (
-        id TEXT PRIMARY KEY,
-        collection_id TEXT NOT NULL REFERENCES collection(id)
-    );".to_string())?;
-
-    mutation("CREATE TABLE IF NOT EXISTS puzzle (
-        id TEXT PRIMARY KEY,
-        collection_id TEXT NOT NULL REFERENCES collection(id),
-        c INT NOT NULL,
-        solved_by INT NOT NULL REFERENCES solution(id)
-    );".to_string())?;
+    for query in &table_definitions {
+        mutation(query.to_string())?;
+    }
 
     Ok(())
 }

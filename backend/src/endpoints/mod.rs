@@ -1,113 +1,149 @@
-use std::{collections::HashMap, sync::{Arc, Mutex}, thread::spawn};
+//! This module defines API endpoints for managing and retrieving Domino puzzles.
+//!
+//! It provides functions to:
+//! - Retrieve a puzzle by its size and complexity.
+//! - Retrieve a puzzle by its unique ID.
+//! - Insert new puzzles into the database.
+
+use std::collections::HashMap;
 use domino_lib::{classify_puzzle, generate_puzzle, solve_puzzle, validate_puzzle};
 use rocket::{get, http::Status, post, serde::json::Json};
 use crate::db::{insert_puzzle, select_puzzle_by_id_from_db, select_puzzle_from_db};
 
+/// Represents a puzzle in API responses.
+///
+/// Each puzzle consists of an `id` and a list of `tiles`, where each tile is either `None`
+/// (for missing tiles) or `Some(Vec<i32>)` representing a tile with two values.
 #[derive(serde::Serialize)]
-pub(crate) struct ApiPuzzle { 
-    pub id: String,
-    pub tiles: Vec<Option<Vec<i32>>>
+pub(crate) struct ApiPuzzle {
+  pub id: String,
+  pub tiles: Vec<Option<Vec<i32>>>,
 }
 
+/// Retrieves a puzzle from the database based on size `n` and complexity `c`.
+///
+/// The puzzle is retrieved and mapped into an API-friendly format.
+///
+/// # Arguments
+///
+/// * `n` - The size of the puzzle.
+/// * `c` - The complexity of the puzzle.
+///
+/// # Returns
+///
+/// * `Ok(Json<ApiPuzzle>)` - The requested puzzle in JSON format.
+/// * `Err(Status::NotFound)` - If the puzzle is not found in the database.
+///
+/// # Example
+///
+/// ```
+/// GET /select_puzzle?n=4&c=2
+/// ```
 #[get("/select_puzzle?<n>&<c>")]
-pub fn select_puzzle(n: i32, c: i32) -> Result<Json<ApiPuzzle>,Status> {
-    if let Ok(puzzle) = select_puzzle_from_db(n, c) {
-        let mapped_puzzle = puzzle.tiles
-        .into_iter()
-        .map(|option_tile|
-            if let Some(tile) = option_tile {
-                Some(vec![tile[0], tile[1]])
-            } else {
-                None
-            }
-        )
-        .collect();
-        let json_puzzle = Json(ApiPuzzle { id: puzzle.id, tiles: mapped_puzzle });
-        Ok(json_puzzle)
-    } else {
-        Err(Status { code: 404 })
-    }
+pub fn select_puzzle(n: i32, c: i32) -> Result<Json<ApiPuzzle>, Status> {
+  if let Ok(puzzle) = select_puzzle_from_db(n, c) {
+      let mapped_puzzle = puzzle
+          .tiles
+          .into_iter()
+          .map(|option_tile| {
+              option_tile.map(|tile| vec![tile[0], tile[1]])
+          })
+          .collect();
+
+      let json_puzzle = Json(ApiPuzzle { id: puzzle.id, tiles: mapped_puzzle });
+      Ok(json_puzzle)
+  } else {
+      Err(Status::NotFound)
+  }
 }
 
-
+/// Retrieves a puzzle by its unique identifier.
+///
+/// This function looks up a puzzle in the database using its `id` and maps it into an API response.
+///
+/// # Arguments
+///
+/// * `id` - The unique identifier of the puzzle.
+///
+/// # Returns
+///
+/// * `Ok(Json<ApiPuzzle>)` - The requested puzzle in JSON format.
+/// * `Err(Status::NotFound)` - If no puzzle is found with the given ID.
+///
+/// # Example
+///
+/// ```
+/// GET /get_puzzle_by_id?id=abcd1234
+/// ```
 #[get("/get_puzzle_by_id?<id>")]
-pub fn get_puzzle_by_id(id: String) -> Result<Json<ApiPuzzle>,Status> {
-    if let Ok(puzzle) = select_puzzle_by_id_from_db(id) {
-        let mapped_puzzle = puzzle.tiles
-        .into_iter()
-        .map(|option_tile|
-            if let Some(tile) = option_tile {
-                Some(vec![tile[0], tile[1]])
-            } else {
-                None
-            }
-        )
-        .collect();
-        let json_puzzle = Json(ApiPuzzle { id: puzzle.id.clone(), tiles: mapped_puzzle });
-        Ok(json_puzzle)
-    } else {
-        Err(Status { code: 404 })
-    }
+pub fn get_puzzle_by_id(id: String) -> Result<Json<ApiPuzzle>, Status> {
+  if let Ok(puzzle) = select_puzzle_by_id_from_db(id) {
+      let mapped_puzzle = puzzle
+          .tiles
+          .into_iter()
+          .map(|option_tile| {
+              option_tile.map(|tile| vec![tile[0], tile[1]])
+          })
+          .collect();
+
+      let json_puzzle = Json(ApiPuzzle { id: puzzle.id.clone(), tiles: mapped_puzzle });
+      Ok(json_puzzle)
+  } else {
+      Err(Status::NotFound)
+  }
 }
 
-
+/// Represents the response when inserting puzzles into the database.
+///
+/// The `inserted` field maps puzzle sizes to the number of successfully inserted puzzles.
 #[derive(serde::Serialize)]
 pub struct InsertedResponse {
-    pub inserted: HashMap<usize, usize>
+  pub inserted: HashMap<usize, usize>,
 }
 
+/// Inserts a batch of generated puzzles into the database.
+///
+/// This function generates `number_of_puzzles` puzzles of size `n` and inserts them into the database.
+///
+/// # Arguments
+///
+/// * `n` - The size of each generated puzzle.
+/// * `number_of_puzzles` - The number of puzzles to generate and insert.
+///
+/// # Returns
+///
+/// * `Ok(Json<InsertedResponse>)` - A JSON response indicating the number of inserted puzzles.
+/// * `Err(Status::InternalServerError)` - If an error occurs during insertion.
+///
+/// # Example
+///
+/// ```
+/// POST /insert_puzzles?n=5&number_of_puzzles=10
+/// ```
 #[post("/insert_puzzles?<n>&<number_of_puzzles>")]
 pub async fn insert_puzzles(n: usize, number_of_puzzles: usize) -> Result<Json<InsertedResponse>, Status> {
-    let inserted = Arc::new(Mutex::new(HashMap::new()));
-    let mut handles = Vec::new();
+    let mut inserted_counts = HashMap::new();
+
     for _ in 0..number_of_puzzles {
-        let inserted_clone = inserted.clone();
-        let handle = spawn(move || {
-            if let Ok(complexity) = insert_valid_puzzle(n) {
-                println!("Inserted puzzle with complexity: {}", complexity);
-                inserted_clone.lock().unwrap().entry(complexity).and_modify(|v| *v += 1).or_insert(1);
-            }
-        });
-        handles.push(handle);
-    }
-    
-    for handle in handles {
-        let _ = handle.join();
-    }
+        let puzzle = generate_puzzle(n, 0, true); // Generate a puzzle with random removals
+        let complexity = classify_puzzle(&puzzle).unwrap().0; // Determine complexity
 
-    let inserted_map = inserted.clone().lock().unwrap().clone();
-    Ok(Json(InsertedResponse {
-        inserted: inserted_map
-    }))
-}
-
-fn insert_valid_puzzle(n: usize) -> Result<usize, String> {
-    let l = if n%2==0 {(n + 1) * (n + 2) / 2} else {(n + 1) * (n + 1) / 2}; 
-    let max_hole = l - (n as f32 / 2.0).floor() as usize;
-    let puzzle = generate_puzzle(n, max_hole, true);
-    if let Ok(solution) = solve_puzzle(&puzzle) {
-        if validate_puzzle(&puzzle, &solution).is_err() {
-            return Err("The puzzle generated is not valid".to_string());
-        }
-        let complexity = classify_puzzle(&puzzle);
-        let result = insert_puzzle(puzzle.clone(), solution.clone(), n, complexity);
-        if let Err(error) = result{
-            return Err(error.message.unwrap());
-        } else {
-            if let Ok(result) = result {
-                if result {
-                    return Ok(complexity);
-                } else {
-                    let error_msg = format!("Failed to insert duplicate puzzle: {:?} with solution: {:?} with complexity: {}", puzzle, solution, complexity);
-                    return Err(error_msg);
+        match solve_puzzle(&puzzle) {
+            Ok(solution) => {
+                if validate_puzzle(&puzzle, &solution).is_ok() {
+                    match insert_puzzle(puzzle.clone(), solution, n, complexity) {
+                        Ok(true) => {
+                            *inserted_counts.entry(n).or_insert(0) += 1;
+                        }
+                        Ok(false) | Err(_) => {
+                            return Err(Status::InternalServerError);
+                        }
+                    }
                 }
-            } else {
-                let error_msg = format!("Failed to insert puzzle: {:?} with solution: {:?} with complexity: {}", puzzle, solution, complexity);
-                return Err(error_msg);
             }
+            Err(_) => continue, // Skip unsolvable puzzles
         }
-    } else {
-        return Err("The puzzle generated is not solvable".to_string());
     }
 
+    Ok(Json(InsertedResponse { inserted: inserted_counts }))
 }
