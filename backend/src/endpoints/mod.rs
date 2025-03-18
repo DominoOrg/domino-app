@@ -6,7 +6,7 @@
 //! - Insert new puzzles into the database.
 
 use std::collections::HashMap;
-use domino_lib::{classify_puzzle, generate_puzzle, solve_puzzle, validate_puzzle};
+use domino_lib::{classify_puzzle, generate_puzzle, generate_valid_puzzle, solve_puzzle, validate_puzzle};
 use rocket::{get, http::Status, post, serde::json::Json};
 use crate::db::{insert_puzzle, select_puzzle_by_id_from_db, select_puzzle_from_db};
 
@@ -103,7 +103,9 @@ pub struct InsertedResponse {
 
 /// Inserts a batch of generated puzzles into the database.
 ///
-/// This function generates `number_of_puzzles` puzzles of size `n` and inserts them into the database.
+/// This function generates `number_of_puzzles` puzzles of size `n`,
+/// validates them, and inserts them into the database.
+/// Each puzzle is generated and checked for solvability before insertion.
 ///
 /// # Arguments
 ///
@@ -124,26 +126,36 @@ pub struct InsertedResponse {
 pub async fn insert_puzzles(n: usize, number_of_puzzles: usize) -> Result<Json<InsertedResponse>, Status> {
     let mut inserted_counts = HashMap::new();
 
+    // Generate and insert the specified number of puzzles
     for _ in 0..number_of_puzzles {
-        let puzzle = generate_puzzle(n, 0, true); // Generate a puzzle with random removals
-        let complexity = classify_puzzle(&puzzle).unwrap().0; // Determine complexity
+        for c in 1..=3 {
+            // Generate a valid puzzle of size `n` with complexity `c`
+            let puzzle = generate_valid_puzzle(n)(c).unwrap();
 
-        match solve_puzzle(&puzzle) {
-            Ok(solution) => {
-                if validate_puzzle(&puzzle, &solution).is_ok() {
-                    match insert_puzzle(puzzle.clone(), solution, n, complexity) {
-                        Ok(true) => {
-                            *inserted_counts.entry(n).or_insert(0) += 1;
-                        }
-                        Ok(false) | Err(_) => {
-                            return Err(Status::InternalServerError);
+            // Attempt to solve the puzzle
+            match solve_puzzle(&puzzle) {
+                Ok(solution) => {
+                    // Validate the generated puzzle with its solution
+                    if validate_puzzle(&puzzle, &solution).is_ok() {
+                        // Insert the puzzle and update the count if successful
+                        match insert_puzzle(puzzle.clone(), solution, n, c) {
+                            Ok(true) => {
+                                *inserted_counts.entry(n).or_insert(0) += 1;
+                            }
+                            // Return an error if insertion fails
+                            Ok(false) | Err(_) => {
+                                return Err(Status::InternalServerError);
+                            }
                         }
                     }
                 }
+                // Skip puzzles that cannot be solved
+                Err(_) => continue,
             }
-            Err(_) => continue, // Skip unsolvable puzzles
         }
     }
 
+    // Return the count of successfully inserted puzzles
     Ok(Json(InsertedResponse { inserted: inserted_counts }))
 }
+
