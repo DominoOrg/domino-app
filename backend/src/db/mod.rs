@@ -1,7 +1,7 @@
-use std::hash::{DefaultHasher, Hash, Hasher};
-use domino_lib::{Puzzle, Solution, Tile};
 use crate::endpoints::ApiPuzzle;
+use domino_lib::{Puzzle, Solution, Tile};
 use query::{mutation, query_puzzle, query_puzzle_by_id};
+use std::hash::{DefaultHasher, Hash, Hasher};
 
 mod query;
 
@@ -43,30 +43,34 @@ pub fn insert_puzzle(
 
     if mutation(format!(
         "INSERT INTO collection (id, n, len) VALUES (\"{}\", {}, {});",
-        puzzle_id, n, puzzle.len()
+        puzzle_id,
+        n,
+        puzzle.len()
     ))
     .is_err()
     {
         return Ok(false);
     }
 
-    mutation(format!(
+    let _res = mutation(format!(
         "INSERT INTO collection (id, n, len) VALUES (\"{}\", {}, {});",
-        solution_id, n, solution.len()
-    ))?;
+        solution_id,
+        n,
+        solution.len()
+    ));
 
     for (i, &tile) in solution.iter().enumerate() {
-        insert_tile(tile)?;
+        let _res = insert_tile(tile);
         if let Some(puzzle_tile) = puzzle.get(i).unwrap() {
-            insert_inserted_tile(&puzzle_id, puzzle_tile, i)?;
+            let _res = insert_inserted_tile(&puzzle_id, puzzle_tile, i);
         }
-        insert_inserted_tile(&solution_id, &tile, i)?;
+        let _res = insert_inserted_tile(&solution_id, &tile, i);
     }
 
-    mutation(format!(
+    let _res = mutation(format!(
         "INSERT INTO solution(id, collection_id) VALUES (\"{}\", \"{}\");",
         solution_id, solution_id
-    ))?;
+    ));
 
     mutation(format!(
         "INSERT INTO puzzle(id, collection_id, c, solved_by) VALUES (\"{}\", \"{}\", {}, \"{}\");",
@@ -102,7 +106,11 @@ fn insert_tile(tile: Tile) -> Result<(), sqlite::Error> {
 /// # Returns
 /// * `Ok(())` if successful.
 /// * `Err(sqlite::Error)` if an error occurs.
-fn insert_inserted_tile(collection_id: &str, tile: &Tile, position: usize) -> Result<(), sqlite::Error> {
+fn insert_inserted_tile(
+    collection_id: &str,
+    tile: &Tile,
+    position: usize,
+) -> Result<(), sqlite::Error> {
     let tile_id = hash_id(tile);
     mutation(format!(
         "INSERT INTO inserted_tile (collection_id, tile_id, position) VALUES (\"{}\", \"{}\", {});",

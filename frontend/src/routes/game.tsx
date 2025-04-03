@@ -12,10 +12,14 @@ const Game = () => {
     puzzleId: string
   } = Route.useSearch();
 
-  const { data, error, isPending } = usePuzzle(puzzleId);
+//  const { data, error, isPending } = usePuzzle(puzzleId);
 
-  if (isPending) return <div>Loading...</div>;
+  const data = usePuzzle(puzzleId);
+/**
+ *   if (isPending) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
+
+ */
 
   return (
     <div className="relative w-screen h-screen flex flex-col justify-around items-center overflow-hidden">
@@ -25,7 +29,7 @@ const Game = () => {
           <Spiral/>
           <Controls/>
         </DndGameContext>
-      </GameContextProvider>            
+      </GameContextProvider>
     <Tutorial/>
   </div>
   );

@@ -1,5 +1,5 @@
-use rand::prelude::*;
 use crate::endpoints::ApiPuzzle;
+use rand::prelude::*;
 use sqlite::{Connection, Error};
 
 /// Opens a connection to the SQLite database.
@@ -42,13 +42,19 @@ pub fn query_puzzle(n: usize, c: usize) -> Result<ApiPuzzle, Error> {
 
     let (puzzle_id, puzzle_len) = fetch_puzzle_id_and_length(&connection, &query)?;
     if puzzle_id.is_empty() {
-        return Ok(ApiPuzzle { id: "".to_string(), tiles: vec![] });
+        return Ok(ApiPuzzle {
+            id: "".to_string(),
+            tiles: vec![],
+        });
     }
 
     let tiles_info = fetch_tiles_info(&connection, &puzzle_id)?;
     let tiles = fetch_tile_data(&connection, &tiles_info, puzzle_len);
 
-    Ok(ApiPuzzle { id: puzzle_id, tiles })
+    Ok(ApiPuzzle {
+        id: puzzle_id,
+        tiles,
+    })
 }
 
 /// Fetches a puzzle from the database by its unique ID.
@@ -82,7 +88,10 @@ pub fn query_puzzle_by_id(id: String) -> Result<ApiPuzzle, Error> {
 /// # Returns
 /// * `Ok((String, i32))` - The puzzle ID and its length.
 /// * `Err(Error)` - If an error occurs during retrieval.
-fn fetch_puzzle_id_and_length(connection: &Connection, query: &str) -> Result<(String, i32), Error> {
+fn fetch_puzzle_id_and_length(
+    connection: &Connection,
+    query: &str,
+) -> Result<(String, i32), Error> {
     let mut puzzle_ids = vec![];
     let mut puzzle_lengths = vec![];
 
@@ -124,7 +133,10 @@ fn fetch_puzzle_id_and_length(connection: &Connection, query: &str) -> Result<(S
 /// # Returns
 /// * `Ok(Vec<(String, String)>)` - A vector of (tile_id, position) tuples.
 /// * `Err(Error)` - If an error occurs during retrieval.
-fn fetch_tiles_info(connection: &Connection, puzzle_id: &str) -> Result<Vec<(String, String)>, Error> {
+fn fetch_tiles_info(
+    connection: &Connection,
+    puzzle_id: &str,
+) -> Result<Vec<(String, String)>, Error> {
     let query = format!(
         "SELECT tile_id, position FROM inserted_tile WHERE collection_id = \"{}\"",
         puzzle_id
@@ -169,27 +181,32 @@ fn fetch_tile_data(
     let mut tiles = vec![None; puzzle_len as usize];
 
     for tile_index in 0..puzzle_len {
-        if let Some((tile_id, _)) = tiles_info.iter().find(|(_, pos)| pos == &tile_index.to_string()) {
+        if let Some((tile_id, _)) = tiles_info
+            .iter()
+            .find(|(_, pos)| pos == &tile_index.to_string())
+        {
             let query = format!("SELECT left, right FROM tile WHERE id = \"{}\"", tile_id);
-            connection.iterate(&query, |rows| {
-                let mut left = None;
-                let mut right = None;
+            connection
+                .iterate(&query, |rows| {
+                    let mut left = None;
+                    let mut right = None;
 
-                for (column, value) in rows {
-                    match *column {
-                        "left" => left = value.and_then(|v| v.parse::<i32>().ok()),
-                        "right" => right = value.and_then(|v| v.parse::<i32>().ok()),
-                        _ => {}
+                    for (column, value) in rows {
+                        match *column {
+                            "left" => left = value.and_then(|v| v.parse::<i32>().ok()),
+                            "right" => right = value.and_then(|v| v.parse::<i32>().ok()),
+                            _ => {}
+                        }
                     }
-                }
 
-                if let (Some(l), Some(r)) = (left, right) {
-                    tiles[tile_index as usize] = Some(vec![l, r]);
-                    return true;
-                }
+                    if let (Some(l), Some(r)) = (left, right) {
+                        tiles[tile_index as usize] = Some(vec![l, r]);
+                        return true;
+                    }
 
-                false
-            }).expect("Error fetching tile data");
+                    false
+                })
+                .expect("Error fetching tile data");
         }
     }
 
