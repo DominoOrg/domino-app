@@ -1,6 +1,6 @@
 import { useReducer } from "react";
 
-export type TutorialState = {
+export interface TutorialState {
   open: boolean;
   progress: number;
   title: string;
@@ -61,9 +61,16 @@ const reducer = (state: TutorialState, action: Action): TutorialState => {
   }
 };
 
-export default function useTutorial(): [TutorialState, () => void, () => void, () => void] {
+interface useTutorialReturn {
+  state: TutorialState;
+  updateProgress: () => void;
+  closeTutorial: () => void;
+  openTutorial: () => void;
+}
+
+export default function useTutorial(): useTutorialReturn {
   const isFirstTime = !localStorage.getItem("tutorialDone") || localStorage.getItem("tutorialDone") === "false";
-  
+
   const [state, dispatch] = useReducer(reducer, {
     ...initialState,
     open: isFirstTime
@@ -84,5 +91,5 @@ export default function useTutorial(): [TutorialState, () => void, () => void, (
     dispatch({ type: 'UPDATE_PROGRESS', payload: 0 });
   };
 
-  return [state, updateProgress, closeTutorial, openTutorial];
+  return {state, updateProgress, closeTutorial, openTutorial};
 }

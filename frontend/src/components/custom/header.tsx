@@ -6,9 +6,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { useGame } from "@/hooks/game_state/useGame";
 import { useTimer } from "@/hooks/timer/context";
-import { useState } from "react";
 
 const Header = () => {
   return (
@@ -22,24 +20,23 @@ const Header = () => {
 export default Header;
 
 function HeaderLabels() {
-  const { getElapsedTime, togglePause, isPaused } = useTimer();
+  const { getElapsedTime } = useTimer();
 
   return (
       <div className="flex justify-center items-center">
         <div className="w-full flex justify-around items-center">
           <div className="flex flex-col justify-center">
-            <p className="text-center">Size</p>
-            <p className="text-center">Medium</p>
+            <p className="text-center text-primary">Size</p>
+            <p className="text-center font-arial text-primary">Medium</p>
           </div>
           <div className="flex flex-col justify-center">
-            <p className="text-center">Complexity</p>
-            <p className="text-center">Medium</p>
+            <p className="text-center text-primary">Complexity</p>
+            <p className="text-center font-arial text-primary">Medium</p>
           </div>
           <div className="flex flex-col justify-center">
-            <p className="text-center">Elapsed time</p>
-            <p className="text-center">{getElapsedTime()}</p>
+            <p className="text-center text-primary">Elapsed time</p>
+            <p className="text-center font-arial text-primary">{getElapsedTime()}</p>
           </div>
-          <button onClick={togglePause}>{!isPaused? "Pause" : "Resume"}</button>
         </div>
       </div>
   );
@@ -48,14 +45,14 @@ function HeaderLabels() {
 
 function BreadcrumbDemo() {
   return (
-    <Breadcrumb className="flex-start">
+    <Breadcrumb className="flex-start mb-6">
       <BreadcrumbList>
         <BreadcrumbItem>
-          <BreadcrumbLink href="/">Home</BreadcrumbLink>
+          <BreadcrumbLink href="/" className="text-lg">Home</BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>
-          <BreadcrumbPage>Puzzle</BreadcrumbPage>
+          <BreadcrumbPage className="text-lg">Puzzle</BreadcrumbPage>
         </BreadcrumbItem>
       </BreadcrumbList>
     </Breadcrumb>
