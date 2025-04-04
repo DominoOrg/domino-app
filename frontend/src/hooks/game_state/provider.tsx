@@ -3,7 +3,6 @@ import { ReactNode, useReducer } from "react";
 import { TileSet, Option, Tile } from "./types";
 import { GameContext, GameState } from "./context";
 
-
 export const GameContextProvider = ({ puzzle, children }: { puzzle: Array<Option<Tile>>, children: ReactNode }) => {
     const tileset = new TileSet(puzzle);
     const freeTiles = tileset.iter()

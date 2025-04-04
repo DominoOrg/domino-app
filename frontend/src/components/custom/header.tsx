@@ -6,6 +6,9 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { useGame } from "@/hooks/game_state/useGame";
+import { useTimer } from "@/hooks/timer/context";
+import { useState } from "react";
 
 const Header = () => {
   return (
@@ -19,6 +22,8 @@ const Header = () => {
 export default Header;
 
 function HeaderLabels() {
+  const { getElapsedTime, togglePause, isPaused } = useTimer();
+
   return (
       <div className="flex justify-center items-center">
         <div className="w-full flex justify-around items-center">
@@ -32,8 +37,9 @@ function HeaderLabels() {
           </div>
           <div className="flex flex-col justify-center">
             <p className="text-center">Elapsed time</p>
-            <p className="text-center">00:01</p>
+            <p className="text-center">{getElapsedTime()}</p>
           </div>
+          <button onClick={togglePause}>{!isPaused? "Pause" : "Resume"}</button>
         </div>
       </div>
   );

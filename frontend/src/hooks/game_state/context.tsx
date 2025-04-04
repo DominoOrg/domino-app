@@ -7,8 +7,9 @@ export interface GameState {
     freeTiles: Array<Option<Tile>>,
     tileset: TileSet,
     moveTile: (from: number, to: number) => void,
-    rotateTile: (index: number) => void
+    rotateTile: (index: number) => void,
 }
+
 
 export const GameContext = React.createContext<GameState | undefined>(undefined);
 

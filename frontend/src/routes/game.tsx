@@ -6,6 +6,7 @@ import { usePuzzle } from "@/hooks/api/usePuzzle";
 import { Spiral } from "@/components/custom/spiral";
 import { FreeTiles } from "@/components/custom/freeTiles";
 import { DndGameContext } from "@/hooks/dragdrop/dndGameContext";
+import { TimerProvider } from "@/hooks/timer/context";
 
 const Game = () => {
   const { puzzleId }: {
@@ -25,9 +26,11 @@ const Game = () => {
     <div className="relative w-screen h-screen flex flex-col justify-around items-center overflow-hidden">
       <GameContextProvider puzzle={data.tiles}>
         <DndGameContext>
-          <Header/>
-          <Spiral/>
-          <FreeTiles/>
+          <TimerProvider>
+            <Header/>
+            <Spiral/>
+            <FreeTiles/>
+          </TimerProvider>
         </DndGameContext>
       </GameContextProvider>
     <Tutorial/>

@@ -7,7 +7,8 @@ type Action = {
         from: number,
         to: number,
     }
-} | { type: "ROTATE_TILE", payload: { index: number }};
+} | { type: "ROTATE_TILE", payload: { index: number }}
+| { type: "INCREMENT_TIME_PLAYING", payload: number };
 
 export const reducer = (prevState: GameState, action: Action): GameState => {
     switch (action.type) {
@@ -23,7 +24,7 @@ export const reducer = (prevState: GameState, action: Action): GameState => {
 // Helper functions
 const isFree = (position: number) => position >= 100;
 const normalizePosition = (position: number) => isFree(position) ? position - 100 : position;
-const getArray = (isFree: boolean, newInBoardTiles: Array<Option<Tile>>, newFreeTiles: Array<Option<Tile>>) => 
+const getArray = (isFree: boolean, newInBoardTiles: Array<Option<Tile>>, newFreeTiles: Array<Option<Tile>>) =>
     isFree ? newFreeTiles : newInBoardTiles;
 
 const updateTileArray = (state: GameState, index: number): GameState => {
