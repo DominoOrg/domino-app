@@ -61,7 +61,7 @@ pub fn insert_puzzle(
 
     for (i, &tile) in solution.iter().enumerate() {
         let _res = insert_tile(tile);
-        if let Some(puzzle_tile) = puzzle.get(i).unwrap() {
+        if let Some(puzzle_tile) = puzzle.0.get(i).unwrap() {
             let _res = insert_inserted_tile(&puzzle_id, puzzle_tile, i);
         }
         let _res = insert_inserted_tile(&solution_id, &tile, i);

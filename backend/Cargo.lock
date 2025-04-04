@@ -273,9 +273,9 @@ dependencies = [
 
 [[package]]
 name = "domino-lib"
-version = "1.4.4"
+version = "1.4.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0a51133a967d9211b8e42b5bb04d5c1365510debb9065025d6987a6d20e77db1"
+checksum = "4b958e64a1519c25674cc1cd457f2ce3ce4c8d35e2799fc664729860a5193481"
 dependencies = [
  "anyhow",
  "good_lp",
