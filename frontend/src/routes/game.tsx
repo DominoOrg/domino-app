@@ -26,18 +26,18 @@ const Game = () => {
 
   return (
     <div className="relative w-screen h-screen flex flex-col justify-around items-center overflow-hidden">
-      <GameContextProvider puzzle={data.tiles}>
-        <DndGameContext>
-          <TimerProvider>
+      <TimerProvider>
+        <GameContextProvider puzzle={data.tiles}>
+          <DndGameContext>
             <Header/>
             <Spiral/>
             <FreeTiles/>
             <Controls/>
             <Tutorial/>
-          </TimerProvider>
-        </DndGameContext>
-      </GameContextProvider>
-  </div>
+          </DndGameContext>
+        </GameContextProvider>
+      </TimerProvider>
+    </div>
   );
 };
 

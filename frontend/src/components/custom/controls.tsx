@@ -5,7 +5,7 @@ import { RotateCcw, Pause, Lightbulb, Check, HelpCircle, Play } from 'lucide-rea
 
 export function Controls() {
   const { togglePause, isPaused } = useTimer();
-  const { openTutorial } = useTutorial();
+  const { toggleTutorial } = useTutorial();
 
   return (<Menubar className="h-fit w-3/4 justify-around">
       <MenubarMenu>
@@ -41,7 +41,10 @@ export function Controls() {
           </MenubarTrigger>
       </MenubarMenu>
       <MenubarMenu>
-        <MenubarTrigger className="font-arial text-sm text-primary" onClick={openTutorial}>
+        <MenubarTrigger className="font-arial text-sm text-primary" onClick={() => {
+          togglePause();
+          toggleTutorial();
+          }}>
           <div className="flex flex-col justify-center items-center text-[10px]">
             <HelpCircle width={20}/>
             <p className="hidden md:block">HELP</p>

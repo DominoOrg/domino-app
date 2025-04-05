@@ -11,10 +11,10 @@ export interface TutorialState {
 
 type Action =
   | { type: 'UPDATE_PROGRESS'; payload: number }
-  | { type: 'CLOSE_MODAL' };
+  | { type: 'TOGGLE_MODAL' }
 
 const initialState: TutorialState = {
-  open: false,
+  open: localStorage.getItem("tutorialDone") === "false" || !localStorage.getItem("tutorialDone"),
   progress: 0,
   title: "Welcome",
   description: "This is a tutorial on how to play",
@@ -49,13 +49,25 @@ const steps = [
 const reducer = (state: TutorialState, action: Action): TutorialState => {
   switch (action.type) {
     case 'UPDATE_PROGRESS':
-      return {
-        ...state,
+      const newProgress = {
         ...steps.find(s => s.progress === action.payload) || steps[0],
         open: action.payload < steps.length
       };
-    case 'CLOSE_MODAL':
-      return { ...state, open: false };
+      console.log(newProgress)
+      // Mark as done if progressing past the last step
+      if (action.payload >= steps.length) {
+        localStorage.setItem("tutorialDone", "true");
+      }
+      return newProgress;
+    case 'TOGGLE_MODAL': {
+      const newOpenState = !state.open;
+      // If closing the modal, reset progress to the first step
+      if (!newOpenState) {
+        return { ...steps[0], open: newOpenState };
+      }
+      // Otherwise, just toggle the open state
+      return { ...state, open: newOpenState };
+    }
     default:
       return state;
   }
@@ -64,32 +76,43 @@ const reducer = (state: TutorialState, action: Action): TutorialState => {
 interface useTutorialReturn {
   state: TutorialState;
   updateProgress: () => void;
-  closeTutorial: () => void;
-  openTutorial: () => void;
+  toggleTutorial: () => void;
 }
 
-export default function useTutorial(): useTutorialReturn {
-  const isFirstTime = !localStorage.getItem("tutorialDone") || localStorage.getItem("tutorialDone") === "false";
+// Renamed function containing the actual logic
+// Accept togglePause as an argument
+function _internal_useTutorialLogic(togglePause: () => void): useTutorialReturn {
+  const [state, dispatch] = useReducer(reducer, initialState);
 
-  const [state, dispatch] = useReducer(reducer, {
-    ...initialState,
-    open: isFirstTime
-  });
-
+  // Define updateProgress *inside* the hook logic function
   const updateProgress = () => {
     const newProgress = state.progress + 1;
     dispatch({ type: 'UPDATE_PROGRESS', payload: newProgress });
+    // If completing the tutorial, toggle the pause state
     if (newProgress >= steps.length) {
-      localStorage.setItem("tutorialDone", "true");
+        togglePause(); // Call togglePause ONCE on completion
     }
+    // Removed the misplaced closing brace and duplicate call
   };
 
-  const closeTutorial = () => dispatch({ type: 'CLOSE_MODAL' });
-
-  const openTutorial = () => {
-    localStorage.setItem("tutorialDone", "false");
-    dispatch({ type: 'UPDATE_PROGRESS', payload: 0 });
+  // Define toggleTutorial *inside* the hook logic function
+  const toggleTutorial = () => {
+    dispatch({ type: 'TOGGLE_MODAL' });
+    // Also toggle pause when tutorial is manually toggled via X or Close button
+    togglePause(); // togglePause parameter is now in scope
   };
 
-  return {state, updateProgress, closeTutorial, openTutorial};
+  // Return the state and the correctly scoped functions
+  return { state, updateProgress, toggleTutorial };
+}
+
+// Export the internal logic function with a specific name
+export { _internal_useTutorialLogic };
+
+// The public hook now consumes the context
+import { useTutorialContext } from './context';
+
+// Default export is the hook that consumes the context
+export default function useTutorial(): useTutorialReturn {
+  return useTutorialContext();
 }
