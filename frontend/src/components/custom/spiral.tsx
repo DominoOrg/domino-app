@@ -11,9 +11,21 @@ export const Spiral = () => {
     col: Math.floor(cols / 2),
     row: Math.floor(cols / 2),
   };
+  let gridSize = "";
+  const n: number = 3;
+  switch (n) {
+    case 3:
+      gridSize = "w-2/5 md:w-1/5 lg:w-1/3";
+      break;
+    case 6:
+      gridSize = "w-2/5 md:w-1/5 lg:w-1/3";
+      break;
+    default:
+      break;
+  }
   return (
   <div
-    className={`w-2/5 md:w-1/2 lg:w-1/3 aspect-square`}
+    className={`${gridSize} aspect-square`}
     style={{
       display: 'grid',
       gridTemplateColumns: `repeat(${cols}, 1fr)`,
