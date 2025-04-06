@@ -12,13 +12,16 @@ export const Spiral = () => {
     row: Math.floor(cols / 2),
   };
   let gridSize = "";
-  const n: number = 3;
+  const n: number = get_n(tiles)!;
   switch (n) {
     case 3:
       gridSize = "w-2/5 md:w-1/5 lg:w-1/3";
       break;
     case 6:
-      gridSize = "w-2/5 md:w-1/5 lg:w-1/3";
+      gridSize = "w-5/6 md:w-2/3 lg:w-1/3";
+      break;
+    case 9:
+      gridSize = "w-5/6 md:w-2/3 lg:w-5/12";
       break;
     default:
       break;
@@ -70,4 +73,34 @@ const SpiralSide = ({index, tiles, spiralCenter}: {
       })}
     </>
   )
+}
+
+
+
+function get_n(puzzle: Option<TileType>[]): number | null {
+  if (puzzle.length === 0) {
+      return null;
+  }
+
+  let tmp = (-3 + Math.sqrt(1 + 8 * puzzle.length)) / 2;
+  if (tmp - Math.floor(tmp) === 0) {
+      return tmp;
+  }
+
+  tmp = -1 + Math.sqrt(2 * puzzle.length);
+  if (tmp - Math.floor(tmp) === 0) {
+      return tmp;
+  }
+
+  tmp = (-1 + Math.sqrt(1 + 4 * puzzle.length)) / 2;
+  if (tmp - Math.floor(tmp) === 0) {
+      return tmp;
+  }
+
+  tmp = Math.sqrt(puzzle.length);
+  if (tmp - Math.floor(tmp) === 0) {
+      return tmp;
+  }
+
+  return null;
 }

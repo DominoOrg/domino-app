@@ -8,7 +8,7 @@ export type Puzzle = {
 
 export function usePuzzle(id: string) {
   // Mock data
-  const puzzle = [null,null,null,null,[2,2],[2,1],[1,1],null];
+  const puzzle = [[7,9],[9,3],[3,5],[5,5],[5,6],[6,8],[8,2],[2,3],[3,6],[6,0],null,null,null,null,null,[8,4],[4,6],[6,9],[9,2],[2,2],[2,1],[1,1],[1,5],[5,4],[4,1],[1,0],[0,0],[0,2],[2,5],[5,7],[7,3],[3,3],[3,0],[0,4],[4,2],[2,6],null,null,null,null,null,null,[1,8],[8,9],[9,1],[1,7],[7,7],[7,0],[0,8],[8,7]];
   const json = {
      id: "0",
      tiles:  puzzle.map((tile => {
