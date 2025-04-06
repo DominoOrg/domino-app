@@ -4,23 +4,27 @@ import { useQuery } from "@tanstack/react-query";
 export type Puzzle = {
   id: string;
   tiles: Array<Option<Tile>>;
+  n: number;
+  c: number;
 }
 
 export function usePuzzle(id: string) {
   // Mock data
-  const puzzle = [null,null,null,null,[2,2],[2,1],[1,1],null];
-  const json = {
-     id: "0",
-     tiles:  puzzle.map((tile => {
-       if(tile) {
-         return new Tile(tile[0], tile[1]);
-       } else {
-         return null;
-       }
-     })),
-   }
-  return json;
-  /*return useQuery({
+  // const puzzle = [null,null,null,null,[2,2],[2,1],[1,1],null];
+  // const json = {
+  //    id: "0",
+  //    tiles:  puzzle.map((tile => {
+  //      if(tile) {
+  //        return new Tile(tile[0], tile[1]);
+  //      } else {
+  //        return null;
+  //      }
+  //    })),
+  //    n: 3,
+  //    c: 3
+  //  }
+  // return json;
+  return useQuery({
     queryKey: ["get_puzzle"],
     queryFn: async (): Promise<Puzzle> => {
         const apiUrl = "api/get_puzzle_by_id?id=" +id;
@@ -36,5 +40,5 @@ export function usePuzzle(id: string) {
 
     return json;
     }
-  })*/
+  })
 }

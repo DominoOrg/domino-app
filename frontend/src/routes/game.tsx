@@ -15,11 +15,11 @@ const Game = () => {
     puzzleId: string
   } = Route.useSearch();
 
-  // const { data, error, isPending } = usePuzzle(puzzleId);
+  const { data, error, isPending } = usePuzzle(puzzleId);
 
-  const data = usePuzzle(puzzleId);
-  //if (isPending) return <div>Loading...</div>;
-  //if (error) return <div>Error: {error.message}</div>;
+  // const data = usePuzzle(puzzleId);
+  if (isPending) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
 
 
   return (
@@ -27,7 +27,7 @@ const Game = () => {
       <TimerProvider>
         <GameContextProvider puzzle={data.tiles}>
           <DndGameContext>
-            <Header/>
+            <Header n={data.n} c={data.c}/>
             <Spiral/>
             <FreeTiles/>
             <Controls/>

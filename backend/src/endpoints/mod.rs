@@ -14,10 +14,12 @@ use crate::db::{insert_puzzle, select_puzzle_by_id_from_db, select_puzzle_from_d
 ///
 /// Each puzzle consists of an `id` and a list of `tiles`, where each tile is either `None`
 /// (for missing tiles) or `Some(Vec<i32>)` representing a tile with two values.
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, Debug)]
 pub(crate) struct ApiPuzzle {
   pub id: String,
   pub tiles: Vec<Option<Vec<i32>>>,
+  pub n: i32,
+  pub c: i32
 }
 
 /// Retrieves a puzzle from the database based on size `n` and complexity `c`.
@@ -42,6 +44,7 @@ pub(crate) struct ApiPuzzle {
 #[get("/select_puzzle?<n>&<c>")]
 pub fn select_puzzle(n: i32, c: i32) -> Result<Json<ApiPuzzle>, Status> {
   if let Ok(puzzle) = select_puzzle_from_db(n, c) {
+      println!("selected puzzle: {:?}", puzzle);
       let mapped_puzzle = puzzle
           .tiles
           .into_iter()
@@ -50,7 +53,7 @@ pub fn select_puzzle(n: i32, c: i32) -> Result<Json<ApiPuzzle>, Status> {
           })
           .collect();
 
-      let json_puzzle = Json(ApiPuzzle { id: puzzle.id, tiles: mapped_puzzle });
+      let json_puzzle = Json(ApiPuzzle { id: puzzle.id, tiles: mapped_puzzle, n, c });
       Ok(json_puzzle)
   } else {
       Err(Status::NotFound)
@@ -86,7 +89,7 @@ pub fn get_puzzle_by_id(id: String) -> Result<Json<ApiPuzzle>, Status> {
           })
           .collect();
 
-      let json_puzzle = Json(ApiPuzzle { id: puzzle.id.clone(), tiles: mapped_puzzle });
+      let json_puzzle = Json(ApiPuzzle { id: puzzle.id.clone(), tiles: mapped_puzzle, n: puzzle.n, c: puzzle.c });
       Ok(json_puzzle)
   } else {
       Err(Status::NotFound)

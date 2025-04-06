@@ -24,7 +24,7 @@ function HomeForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      n: "3",
+      n: "6",
       difficulty: "1",
     },
   });
@@ -46,7 +46,7 @@ function HomeForm() {
       router.navigate({
         to: "/game",
         search: { puzzleId: json.id },
-      });  
+      });
     }
    };
 
@@ -61,16 +61,16 @@ function HomeForm() {
           name="n"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="label-font">Game length</FormLabel>
+              <FormLabel className="label-font">Puzzle size</FormLabel>
               <FormControl>
                 <Select onValueChange={field.onChange}>
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Small" />
+                    <SelectValue placeholder="Medium (28 tiles)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="3">Small</SelectItem>
-                    <SelectItem value="6">Medium</SelectItem>
-                    <SelectItem value="9">Long</SelectItem>
+                    <SelectItem value="3">Small (8 tiles)</SelectItem>
+                    <SelectItem value="6">Medium (28 tiles)</SelectItem>
+                    <SelectItem value="9">Large (50 tiles)</SelectItem>
                   </SelectContent>
                 </Select>
               </FormControl>
@@ -90,10 +90,10 @@ function HomeForm() {
               <FormControl>
                 <Select onValueChange={field.onChange}>
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Simple" />
+                    <SelectValue placeholder="Easy" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="1">Simple</SelectItem>
+                    <SelectItem value="1">Easy</SelectItem>
                     <SelectItem value="2">Medium</SelectItem>
                     <SelectItem value="3">Hard</SelectItem>
                   </SelectContent>

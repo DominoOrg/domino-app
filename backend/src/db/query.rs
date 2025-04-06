@@ -36,15 +36,18 @@ pub fn mutation(query: String) -> Result<(), Error> {
 pub fn query_puzzle(n: usize, c: usize) -> Result<ApiPuzzle, Error> {
     let connection = open_connection()?;
     let query = format!(
-        "SELECT P.id, C.len FROM puzzle P, collection C WHERE n = {} AND c = {} AND P.collection_id = C.id",
+        "SELECT P.id, C.len, P.c, C.n FROM puzzle P, collection C WHERE n = {} AND c = {} AND P.collection_id = C.id",
         n, c
     );
 
-    let (puzzle_id, puzzle_len) = fetch_puzzle_id_and_length(&connection, &query)?;
+    let result = fetch_puzzle_info(&connection, &query)?;
+    let (puzzle_id, puzzle_len, c, n) = result;
     if puzzle_id.is_empty() {
         return Ok(ApiPuzzle {
             id: "".to_string(),
             tiles: vec![],
+            n,
+            c,
         });
     }
 
@@ -54,6 +57,8 @@ pub fn query_puzzle(n: usize, c: usize) -> Result<ApiPuzzle, Error> {
     Ok(ApiPuzzle {
         id: puzzle_id,
         tiles,
+        n,
+        c,
     })
 }
 
@@ -72,11 +77,11 @@ pub fn query_puzzle_by_id(id: String) -> Result<ApiPuzzle, Error> {
         id
     );
 
-    let (_, puzzle_len) = fetch_puzzle_id_and_length(&connection, &query)?;
+    let (_, puzzle_len, c, n) = fetch_puzzle_info(&connection, &query)?;
     let tiles_info = fetch_tiles_info(&connection, &id)?;
     let tiles = fetch_tile_data(&connection, &tiles_info, puzzle_len);
 
-    Ok(ApiPuzzle { id, tiles })
+    Ok(ApiPuzzle { id, tiles, n, c })
 }
 
 /// Fetches a puzzle ID and its length from the database.
@@ -88,12 +93,14 @@ pub fn query_puzzle_by_id(id: String) -> Result<ApiPuzzle, Error> {
 /// # Returns
 /// * `Ok((String, i32))` - The puzzle ID and its length.
 /// * `Err(Error)` - If an error occurs during retrieval.
-fn fetch_puzzle_id_and_length(
+fn fetch_puzzle_info(
     connection: &Connection,
     query: &str,
-) -> Result<(String, i32), Error> {
+) -> Result<(String, i32, i32, i32), Error> {
     let mut puzzle_ids = vec![];
     let mut puzzle_lengths = vec![];
+    let mut puzzle_complexities = vec![];
+    let mut puzzle_sizes = vec![];
 
     connection.iterate(query, |rows| {
         for (column, value) in rows {
@@ -109,6 +116,20 @@ fn fetch_puzzle_id_and_length(
                             puzzle_lengths.push(parsed_len);
                         }
                     }
+                },
+                "c" => {
+                    if let Some(value) = value {
+                      if let Ok(parsed_value) = value.parse::<i32>() {
+                          puzzle_complexities.push(parsed_value);
+                      }
+                    }
+                },
+                "n" => {
+                  if let Some(value) = value {
+                    if let Ok(parsed_value) = value.parse::<i32>() {
+                        puzzle_sizes.push(parsed_value);
+                    }
+                  }
                 }
                 _ => {}
             }
@@ -117,11 +138,11 @@ fn fetch_puzzle_id_and_length(
     })?;
 
     if puzzle_ids.is_empty() {
-        return Ok(("".to_string(), 0));
+        return Ok(("".to_string(), 0, 0, 0));
     }
 
     let rand_index = thread_rng().gen_range(0..puzzle_ids.len());
-    Ok((puzzle_ids[rand_index].clone(), puzzle_lengths[rand_index]))
+    Ok((puzzle_ids[rand_index].clone(), puzzle_lengths[rand_index], puzzle_complexities[rand_index], puzzle_sizes[rand_index]))
 }
 
 /// Fetches the tiles information (ID and position) associated with a puzzle.
