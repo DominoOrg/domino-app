@@ -28,7 +28,10 @@ const Tutorial = () => {
           {/* Use combined handler */}
           {state.progress < 2 && <Button variant="outline" onClick={handleToggle}>Close</Button>}
           {/* Use updateProgress directly */}
-          <Button type="submit" onClick={updateProgress}>{state.cta}</Button>
+          <Button type="submit" onClick={() => {
+            updateProgress();
+            togglePause();
+          }}>{state.cta}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

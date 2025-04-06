@@ -53,7 +53,6 @@ const reducer = (state: TutorialState, action: Action): TutorialState => {
         ...steps.find(s => s.progress === action.payload) || steps[0],
         open: action.payload < steps.length
       };
-      console.log(newProgress)
       // Mark as done if progressing past the last step
       if (action.payload >= steps.length) {
         localStorage.setItem("tutorialDone", "true");
@@ -89,7 +88,9 @@ function _internal_useTutorialLogic(togglePause: () => void): useTutorialReturn 
     const newProgress = state.progress + 1;
     dispatch({ type: 'UPDATE_PROGRESS', payload: newProgress });
     // If completing the tutorial, toggle the pause state
-    if (newProgress >= steps.length) {
+    console.log("Update progress with progress == ",state.progress);
+      if (newProgress > steps.length - 1) {
+        console.log("Toggling pause");
         togglePause(); // Call togglePause ONCE on completion
     }
     // Removed the misplaced closing brace and duplicate call

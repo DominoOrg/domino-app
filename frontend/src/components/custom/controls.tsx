@@ -7,7 +7,7 @@ export function Controls() {
   const { togglePause, isPaused } = useTimer();
   const { toggleTutorial } = useTutorial();
 
-  return (<Menubar className="h-fit w-3/4 justify-around">
+  return (<Menubar className="h-fit w-3/4 justify-around shadow-lg">
       <MenubarMenu>
         <MenubarTrigger className="font-arial text-sm text-primary">
           <div className="flex flex-col justify-center items-center text-[10px]">

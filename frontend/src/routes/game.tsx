@@ -18,8 +18,6 @@ const Game = () => {
   // const { data, error, isPending } = usePuzzle(puzzleId);
 
   const data = usePuzzle(puzzleId);
-  console.log(data)
-
   //if (isPending) return <div>Loading...</div>;
   //if (error) return <div>Error: {error.message}</div>;
 
