@@ -13,7 +13,7 @@ export const Spiral = () => {
   };
   return (
   <div
-    className={`w-5/6 md:w-1/2 lg:w-1/3 aspect-square`}
+    className={`w-2/5 md:w-1/2 lg:w-1/3 aspect-square`}
     style={{
       display: 'grid',
       gridTemplateColumns: `repeat(${cols}, 1fr)`,
@@ -29,7 +29,7 @@ export const Spiral = () => {
           tiles={tiles}
           spiralCenter={center}/>
       )
-    })}       
+    })}
   </div>
   );
 }
@@ -54,7 +54,7 @@ const SpiralSide = ({index, tiles, spiralCenter}: {
               color={"bg-primary"}
               absoluteIndex={sideBaseIndex + j}
               />
-          )  
+          )
       })}
     </>
   )
