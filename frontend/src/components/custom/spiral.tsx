@@ -15,7 +15,7 @@ export const Spiral = () => {
   const n: number = get_n(tiles)!;
   switch (n) {
     case 3:
-      gridSize = "w-2/5 md:w-1/5 lg:w-1/3";
+      gridSize = "w-2/5 md:w-1/5 lg:w-1/6";
       break;
     case 6:
       gridSize = "w-5/6 md:w-2/3 lg:w-1/3";
