@@ -17,7 +17,7 @@ const Game = () => {
   // Mock api fetch
   // const data = usePuzzle(puzzleId);
 
-  const { data, error, isPending } = usePuzzle(puzzleId);
+  const { error, isPending } = usePuzzle(puzzleId);
 
   if (isPending) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
