@@ -1,6 +1,6 @@
 import { reducer } from "./reducer";
 import { ReactNode, useReducer } from "react";
-import { TileSet, Option, Tile } from "./types";
+import { TileSet } from "./types";
 import { GameContext, GameState } from "./context";
 import { usePuzzle } from "../api/usePuzzle";
 

@@ -6,7 +6,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { usePuzzle } from "@/hooks/api/usePuzzle";
 import { useGame } from "@/hooks/game_state/useGame";
 import { useTimer } from "@/hooks/timer/context";
 
