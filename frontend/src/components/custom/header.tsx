@@ -6,20 +6,24 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { usePuzzle } from "@/hooks/api/usePuzzle";
+import { useGame } from "@/hooks/game_state/useGame";
 import { useTimer } from "@/hooks/timer/context";
 
-const Header = ({n, c}: {n: number, c: number}) => {
+const Header = () => {
+
   return (
     <div className="w-3/4 flex flex-col justify-around gap-4">
       <BreadcrumbDemo />
-      <HeaderLabels n={n} c={c}/>
+      <HeaderLabels />
     </div>
   );
 };
 
 export default Header;
 
-function HeaderLabels({n, c}: {n: number, c: number}) {
+function HeaderLabels() {
+  const { n, c } = useGame();
   const { getElapsedTime } = useTimer();
 
   let size = "";

@@ -2,21 +2,27 @@ import { reducer } from "./reducer";
 import { ReactNode, useReducer } from "react";
 import { TileSet, Option, Tile } from "./types";
 import { GameContext, GameState } from "./context";
+import { usePuzzle } from "../api/usePuzzle";
 
-export const GameContextProvider = ({ puzzle, children }: { puzzle: Array<Option<Tile>>, children: ReactNode }) => {
-    const tileset = new TileSet(puzzle);
+export const GameContextProvider = ({ id, children }: { id: string, children: ReactNode }) => {
+    const { tiles, solution, n, c } = usePuzzle(id).data!;
+    const tileset = new TileSet(tiles);
     const freeTiles = tileset.iter()
         .filter(tile =>
-            !puzzle.some(t => t && t.is_equal(tile))
+            !tiles.some(t => t && t.is_equal(tile))
         );
 
     const initialState: GameState = {
-        inBoardTiles: puzzle,
+        inBoardTiles: tiles,
         insertedPositions: [],
         freeTiles,
         tileset,
+        solution,
+        n,
+        c,
         moveTile: () => {},
         rotateTile: () => {},
+        solvePuzzle: () => {},
     };
 
     const [state, dispatch] = useReducer(reducer, initialState);
@@ -29,7 +35,11 @@ export const GameContextProvider = ({ puzzle, children }: { puzzle: Array<Option
         dispatch({ type: "ROTATE_TILE", payload: { index } });
     };
 
-    const updatedState: GameState = { ...state, moveTile, rotateTile };
+    const solvePuzzle = () => {
+        dispatch({ type: "SOLVE_PUZZLE" });
+    };
+
+    const updatedState: GameState = { ...state, moveTile, rotateTile, solvePuzzle };
 
     return (
         <GameContext.Provider value={ updatedState }>

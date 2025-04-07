@@ -25,7 +25,7 @@ function HomeForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       n: "6",
-      difficulty: "1",
+      difficulty: "2",
     },
   });
 
@@ -90,7 +90,7 @@ function HomeForm() {
               <FormControl>
                 <Select onValueChange={field.onChange}>
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Easy" />
+                    <SelectValue placeholder="Medium" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="1">Easy</SelectItem>

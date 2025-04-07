@@ -14,20 +14,20 @@ const Game = () => {
   const { puzzleId }: {
     puzzleId: string
   } = Route.useSearch();
+  // Mock api fetch
+  // const data = usePuzzle(puzzleId);
 
   const { data, error, isPending } = usePuzzle(puzzleId);
 
-  // const data = usePuzzle(puzzleId);
   if (isPending) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
-
 
   return (
     <div className="relative w-screen h-screen flex flex-col justify-around items-center overflow-hidden">
       <TimerProvider>
-        <GameContextProvider puzzle={data.tiles}>
+        <GameContextProvider id={puzzleId}>
           <DndGameContext>
-            <Header n={data.n} c={data.c}/>
+            <Header/>
             <Spiral/>
             <FreeTiles/>
             <Controls/>

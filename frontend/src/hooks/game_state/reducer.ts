@@ -8,7 +8,7 @@ type Action = {
         to: number,
     }
 } | { type: "ROTATE_TILE", payload: { index: number }}
-| { type: "INCREMENT_TIME_PLAYING", payload: number };
+| { type: "SOLVE_PUZZLE" };
 
 export const reducer = (prevState: GameState, action: Action): GameState => {
     switch (action.type) {
@@ -16,6 +16,8 @@ export const reducer = (prevState: GameState, action: Action): GameState => {
             return moveTile(prevState, action.payload);
         case "ROTATE_TILE":
             return updateTileArray(prevState, action.payload.index);
+        case "SOLVE_PUZZLE":
+            return solvePuzzle(prevState);
         default:
             return prevState; // Handle unknown action types by returning the previous state
     }
@@ -82,3 +84,12 @@ const moveTile = (state: GameState, { from, to }: {from: number, to: number}): G
 
     return { ...state, inBoardTiles: newInBoardTiles, freeTiles: newFreeTiles, insertedPositions: newInsertedPositions };
 };
+
+const solvePuzzle = (state: GameState): GameState => {
+  return {
+    ...state,
+    inBoardTiles: state.solution,
+    freeTiles: [],
+    insertedPositions: state.inBoardTiles.map((tile,index)=> tile == null ? index : null).filter((tile)=> tile != null),
+  }
+}

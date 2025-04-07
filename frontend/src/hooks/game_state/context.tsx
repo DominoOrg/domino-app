@@ -6,8 +6,12 @@ export interface GameState {
     insertedPositions: Array<number>,
     freeTiles: Array<Option<Tile>>,
     tileset: TileSet,
+    solution: Array<Tile>,
+    n: number,
+    c: number,
     moveTile: (from: number, to: number) => void,
     rotateTile: (index: number) => void,
+    solvePuzzle: () => void
 }
 
 
