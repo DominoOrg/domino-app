@@ -138,7 +138,7 @@ pub async fn insert_puzzles(n: usize, number_of_puzzles: Option<usize>) -> Resul
     for _ in 0..desired_count {
         for c in 1..=3 {
             // Generate a valid puzzle of size `n` with complexity `c`
-            let puzzle: Puzzle = generate_puzzle(n, c, true).into();
+            let puzzle: Puzzle = generate_puzzle(n, c).into();
             let solution = solve_puzzle(&puzzle.clone()).unwrap();
             match insert_puzzle(puzzle.clone(), solution, n, c) {
                 Ok(true) => {
