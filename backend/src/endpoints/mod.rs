@@ -18,6 +18,7 @@ use crate::db::{insert_puzzle, select_puzzle_by_id_from_db, select_puzzle_from_d
 pub(crate) struct ApiPuzzle {
   pub id: String,
   pub tiles: Vec<Option<Vec<i32>>>,
+  pub solution: Vec<Vec<i32>>,
   pub n: i32,
   pub c: i32
 }
@@ -53,7 +54,7 @@ pub fn select_puzzle(n: i32, c: i32) -> Result<Json<ApiPuzzle>, Status> {
           })
           .collect();
 
-      let json_puzzle = Json(ApiPuzzle { id: puzzle.id, tiles: mapped_puzzle, n, c });
+      let json_puzzle = Json(ApiPuzzle { id: puzzle.id, tiles: mapped_puzzle, n, c, solution: puzzle.solution });
       Ok(json_puzzle)
   } else {
       Err(Status::NotFound)
@@ -89,7 +90,7 @@ pub fn get_puzzle_by_id(id: String) -> Result<Json<ApiPuzzle>, Status> {
           })
           .collect();
 
-      let json_puzzle = Json(ApiPuzzle { id: puzzle.id.clone(), tiles: mapped_puzzle, n: puzzle.n, c: puzzle.c });
+      let json_puzzle = Json(ApiPuzzle { id: puzzle.id.clone(), tiles: mapped_puzzle, n: puzzle.n, c: puzzle.c, solution: puzzle.solution });
       Ok(json_puzzle)
   } else {
       Err(Status::NotFound)

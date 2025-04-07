@@ -1,16 +1,13 @@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
 import useTutorial from "@/hooks/tutorial/useTutorial";
-import { useTimer } from "@/hooks/timer/context"; // Add timer import
 
 const Tutorial = () => {
   const { state, updateProgress, toggleTutorial } = useTutorial();
-  const { togglePause } = useTimer(); // Get togglePause
 
   // Combined handler
   const handleToggle = () => {
     toggleTutorial();
-    togglePause();
   };
 
   return (<><Dialog open={state.open} onOpenChange={handleToggle}> {/* Use combined handler */}
@@ -30,7 +27,6 @@ const Tutorial = () => {
           {/* Use updateProgress directly */}
           <Button type="submit" onClick={() => {
             updateProgress();
-            togglePause();
           }}>{state.cta}</Button>
         </DialogFooter>
       </DialogContent>

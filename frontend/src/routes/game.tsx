@@ -8,6 +8,7 @@ import { DndGameContext } from "@/hooks/dragdrop/dndGameContext";
 import { TimerProvider } from "@/hooks/timer/context";
 import { Controls } from "@/components/custom/controls";
 import Tutorial from "@/components/custom/tutorial";
+import { TutorialProvider } from "@/hooks/tutorial/context";
 
 
 const Game = () => {
@@ -25,15 +26,17 @@ const Game = () => {
   return (
     <div className="relative w-screen h-screen flex flex-col justify-around items-center overflow-hidden">
       <TimerProvider>
-        <GameContextProvider id={puzzleId}>
-          <DndGameContext>
-            <Header/>
-            <Spiral/>
-            <FreeTiles/>
-            <Controls/>
-            <Tutorial/>
-          </DndGameContext>
-        </GameContextProvider>
+        <TutorialProvider>
+          <GameContextProvider id={puzzleId}>
+            <DndGameContext>
+              <Header/>
+              <Spiral/>
+              <FreeTiles/>
+              <Controls/>
+              <Tutorial/>
+            </DndGameContext>
+          </GameContextProvider>
+        </TutorialProvider>
       </TimerProvider>
     </div>
   );

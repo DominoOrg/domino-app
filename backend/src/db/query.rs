@@ -36,16 +36,17 @@ pub fn mutation(query: String) -> Result<(), Error> {
 pub fn query_puzzle(n: usize, c: usize) -> Result<ApiPuzzle, Error> {
     let connection = open_connection()?;
     let query = format!(
-        "SELECT P.id, C.len, P.c, C.n FROM puzzle P, collection C WHERE n = {} AND c = {} AND P.collection_id = C.id",
+        "SELECT P.id, C.len, P.c, C.n, P.solved_by FROM puzzle P, collection C WHERE n = {} AND c = {} AND P.collection_id = C.id",
         n, c
     );
 
     let result = fetch_puzzle_info(&connection, &query)?;
-    let (puzzle_id, puzzle_len, c, n) = result;
+    let (puzzle_id, puzzle_len, c, n, solution_id) = result;
     if puzzle_id.is_empty() {
         return Ok(ApiPuzzle {
             id: "".to_string(),
             tiles: vec![],
+            solution: vec![],
             n,
             c,
         });
@@ -53,10 +54,13 @@ pub fn query_puzzle(n: usize, c: usize) -> Result<ApiPuzzle, Error> {
 
     let tiles_info = fetch_tiles_info(&connection, &puzzle_id)?;
     let tiles = fetch_tile_data(&connection, &tiles_info, puzzle_len);
+    let solution_tiles_info = fetch_tiles_info(&connection, solution_id.to_string().as_str())?;
+    let solution = fetch_solution_tile_data(&connection, &solution_tiles_info, puzzle_len);
 
     Ok(ApiPuzzle {
         id: puzzle_id,
         tiles,
+        solution,
         n,
         c,
     })
@@ -77,11 +81,12 @@ pub fn query_puzzle_by_id(id: String) -> Result<ApiPuzzle, Error> {
         id
     );
 
-    let (_, puzzle_len, c, n) = fetch_puzzle_info(&connection, &query)?;
+    let (_, puzzle_len, c, n, solution_id) = fetch_puzzle_info(&connection, &query)?;
     let tiles_info = fetch_tiles_info(&connection, &id)?;
     let tiles = fetch_tile_data(&connection, &tiles_info, puzzle_len);
-
-    Ok(ApiPuzzle { id, tiles, n, c })
+    let solution_tiles_info = fetch_tiles_info(&connection, solution_id.to_string().as_str())?;
+    let solution = fetch_solution_tile_data(&connection, &solution_tiles_info, puzzle_len);
+    Ok(ApiPuzzle { id, tiles, solution, n, c })
 }
 
 /// Fetches a puzzle ID and its length from the database.
@@ -96,14 +101,16 @@ pub fn query_puzzle_by_id(id: String) -> Result<ApiPuzzle, Error> {
 fn fetch_puzzle_info(
     connection: &Connection,
     query: &str,
-) -> Result<(String, i32, i32, i32), Error> {
+) -> Result<(String, i32, i32, i32, String), Error> {
     let mut puzzle_ids = vec![];
     let mut puzzle_lengths = vec![];
     let mut puzzle_complexities = vec![];
     let mut puzzle_sizes = vec![];
+    let mut puzzle_solutions_id = vec![];
 
     connection.iterate(query, |rows| {
         for (column, value) in rows {
+            println!("column: {:?}, value: {:?}", column, value);
             match *column {
                 "id" => {
                     if let Some(value) = value {
@@ -130,7 +137,12 @@ fn fetch_puzzle_info(
                         puzzle_sizes.push(parsed_value);
                     }
                   }
-                }
+                },
+                "solved_by" => {
+                    if let Some(value) = value {
+                        puzzle_solutions_id.push(value.to_string());
+                    }
+                },
                 _ => {}
             }
         }
@@ -138,11 +150,17 @@ fn fetch_puzzle_info(
     })?;
 
     if puzzle_ids.is_empty() {
-        return Ok(("".to_string(), 0, 0, 0));
+        return Ok(("".to_string(), 0, 0, 0, "".to_string()));
     }
-
+    println!("puzzle_ids: {:?}, puzzle_lengths: {:?}, puzzle_complexities: {:?}, puzzle_sizes: {:?}, puzzle_solutions_id: {:?}", puzzle_ids, puzzle_lengths, puzzle_complexities, puzzle_sizes, puzzle_solutions_id);
     let rand_index = thread_rng().gen_range(0..puzzle_ids.len());
-    Ok((puzzle_ids[rand_index].clone(), puzzle_lengths[rand_index], puzzle_complexities[rand_index], puzzle_sizes[rand_index]))
+    Ok((
+      puzzle_ids[rand_index].clone(),
+      puzzle_lengths[rand_index],
+      puzzle_complexities[rand_index],
+      puzzle_sizes[rand_index],
+      puzzle_solutions_id[rand_index].to_string()
+    ))
 }
 
 /// Fetches the tiles information (ID and position) associated with a puzzle.
@@ -232,4 +250,44 @@ fn fetch_tile_data(
     }
 
     tiles
+}
+
+fn fetch_solution_tile_data(
+  connection: &Connection,
+  tiles_info: &[(String, String)],
+  puzzle_len: i32,
+) -> Vec<Vec<i32>> {
+  let mut tiles = vec![];
+
+  for tile_index in 0..puzzle_len {
+      if let Some((tile_id, _)) = tiles_info
+          .iter()
+          .find(|(_, pos)| pos == &tile_index.to_string())
+      {
+          let query = format!("SELECT left, right FROM tile WHERE id = \"{}\"", tile_id);
+          connection
+              .iterate(&query, |rows| {
+                  let mut left = None;
+                  let mut right = None;
+
+                  for (column, value) in rows {
+                      match *column {
+                          "left" => left = value.and_then(|v| v.parse::<i32>().ok()),
+                          "right" => right = value.and_then(|v| v.parse::<i32>().ok()),
+                          _ => {}
+                      }
+                  }
+
+                  if let (Some(l), Some(r)) = (left, right) {
+                      tiles.push(vec![l, r]);
+                      return true;
+                  }
+
+                  false
+              })
+              .expect("Error fetching tile data");
+      }
+  }
+
+  tiles
 }

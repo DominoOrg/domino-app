@@ -19,7 +19,10 @@ export function Controls() {
           </MenubarTrigger>
       </MenubarMenu>
       <MenubarMenu>
-        <MenubarTrigger className="font-arial text-sm text-primary" onClick={solvePuzzle}>
+        <MenubarTrigger className="font-arial text-sm text-primary" onClick={() => {
+          solvePuzzle();
+          togglePause();
+          }}>
           <div className="flex flex-col justify-center items-center text-[10px]">
             <Check width={20}/>
             <p className="hidden md:block">AUTO-SOLVE</p>
@@ -28,7 +31,6 @@ export function Controls() {
       </MenubarMenu>
       <MenubarMenu>
         <MenubarTrigger className="font-arial text-sm text-primary" onClick={() => {
-          togglePause();
           toggleTutorial();
           }}>
           <div className="flex flex-col justify-center items-center text-[10px]">
