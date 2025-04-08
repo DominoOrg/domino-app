@@ -13,7 +13,7 @@ export const DndGameContext: React.FC<PropsWithDragEndEvent> = ({ children }) =>
         useSensor(TouchSensor),
     );
     const context = useContext(GameContext);
-    
+
     if (context === undefined) {
         throw new Error("useTile must be used within a GameProvider");
     }
@@ -26,6 +26,7 @@ export const DndGameContext: React.FC<PropsWithDragEndEvent> = ({ children }) =>
             context.moveTile(active.id as number, over.id as number);
         }
     };
+
 
     return (
         <DndContext
